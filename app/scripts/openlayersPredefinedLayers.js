@@ -1,14 +1,14 @@
 /*eslint-env browser, jquery */
 /*global ol */
 /**
-* OL3 layers module.
+* OL3 predefined layers
 * @module
 * @external $
 * @external ol
 * @return {Object} Public functions / variables
 */
 /*eslint-disable no-unused-vars*/
-var openlayersPredefinedLayers = (function () {
+var openlayersPredefinedLayers = (function (mod) {
     /*eslint-enable no-unused-vars*/
     'use strict';
 
@@ -16,6 +16,8 @@ var openlayersPredefinedLayers = (function () {
         bingMapsKey: 'Ak-dzM4wZjSqTlzveKz5u0d4IQ4bRzVI309GxmkgSVr1ewS6iPSrOvOKhA-CJlm3',
         dataPath: 'data/'
     };
+
+    var protocol = (window.location.protocol === 'https:') ? 'https:' : 'http:';
 
     var layers = {};
 
@@ -803,6 +805,34 @@ var openlayersPredefinedLayers = (function () {
 
 
 
-    return layers;
+    /**
+    * Create a new layer using predefined settings
+    * @public
+    * @param {string} name - Predefined layer (variable name)
+    * @param {Object} [properties] - Layer custom parameters
+    * @return {Object} OL3 layer
+    */
+    var getPredefinedLayer = function (name, properties) {
 
-})();
+        //if (!openlayersPredefinedLayers || !openlayersPredefinedLayers[name]) {
+        if (typeof layers[name] !== 'function') {
+            console.warn(name + ' layer definition is not defined');
+            return false;
+        }
+
+        // Define the new layer with a predefined layer
+        //var layer = openlayersPredefinedLayers[name]();
+        var layer = layers[name]();
+
+        return layer;
+
+    };
+
+
+
+    return $.extend(mod, {
+        layers: layers,
+        getPredefinedLayer: getPredefinedLayer
+    });
+
+})(openlayersHelpers || {});

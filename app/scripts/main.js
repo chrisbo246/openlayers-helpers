@@ -1,15 +1,15 @@
 /*eslint-env browser, jquery */
-/*global ol, mapControlsModule, mapLayersModule, openlayersHelpers */
+/*global ol, mapControlsModule, mapLayersModule, openlayersMapHelpers */
 
 /**
-* OL3 map definition example using openlayersHelpers
+* OL3 map definition example using openlayersMapHelpers
 * @author chrisbo246
 * @version: 0.0.1
 * @module
 * @external $
 * @external mapControlsModule
 * @external mapLayersModule
-* @external openlayersHelpers
+* @external openlayersMapHelpers
 * @return {Object} Public functions / variables
 */
 
@@ -18,29 +18,50 @@ var map1 = (function () {
     /*eslint-enable no-unused-vars*/
     'use strict';
 
-    // Map container
-    var target = '#map1';
+    // Map container id
+    var target = 'map1';
 
     // Define map base layers
-    var openCycleMapLayer = mapLayersModule.create('openCycleMap');
-    var openStreetMapLayer = mapLayersModule.create('openStreetMap', {visible: true});
-    var mapsForFreeReliefLayer = mapLayersModule.create('mapsForFreeRelief');
-    var customBaseLayerLayer = mapLayersModule.create('customBaseLayer');
-    var googleMapLayer = mapLayersModule.create('googleMap');
-    var googleTerrainLayer = mapLayersModule.create('googleTerrain');
-    var googleSatelliteLayer = mapLayersModule.create('googleSatellite');
-    var mapquestOSMLayer = mapLayersModule.create('mapquestOSM');
-    var mapquestSatLayer = mapLayersModule.create('mapquestSat');
+    var openCycleMapLayer = openlayersHelpers.getPredefinedLayer('openCycleMap');
+    var openStreetMapLayer = openlayersHelpers.getPredefinedLayer('openStreetMap');
+    var mapsForFreeReliefLayer = openlayersHelpers.getPredefinedLayer('mapsForFreeRelief');
+    var customBaseLayerLayer = openlayersHelpers.getPredefinedLayer('customBaseLayer');
+    var googleMapLayer = openlayersHelpers.getPredefinedLayer('googleMap');
+    var googleTerrainLayer = openlayersHelpers.getPredefinedLayer('googleTerrain');
+    var googleSatelliteLayer = openlayersHelpers.getPredefinedLayer('googleSatellite');
+    var mapquestOSMLayer = openlayersHelpers.getPredefinedLayer('mapquestOSM');
+    var mapquestSatLayer = openlayersHelpers.getPredefinedLayer('mapquestSat');
+
+    openlayersHelpers.initLayer(openCycleMapLayer);
+    openlayersHelpers.initLayer(openStreetMapLayer, {visible: true});
+    openlayersHelpers.initLayer(mapsForFreeReliefLayer);
+    openlayersHelpers.initLayer(customBaseLayerLayer);
+    openlayersHelpers.initLayer(googleMapLayer);
+    openlayersHelpers.initLayer(googleTerrainLayer);
+    openlayersHelpers.initLayer(googleSatelliteLayer);
+    openlayersHelpers.initLayer(mapquestOSMLayer);
+    openlayersHelpers.initLayer(mapquestSatLayer);
+
 
     // Define map layers
-    var gpxFileLayer = mapLayersModule.create('gpxFile', {zIndex: 8});
-    var googleHybridLayer = mapLayersModule.create('googleHybrid', {zIndex: 7});
-    var googleBikeLayer = mapLayersModule.create('googleBike', {zIndex: 6});
-    var lonviaCyclingLayer = mapLayersModule.create('lonviaCycling', {zIndex: 5});
-    var lonviaHikingLayer = mapLayersModule.create('lonviaHiking', {zIndex: 4});
-    var mapquestHybLayer = mapLayersModule.create('mapquestHyb', {zIndex: 3});
-    var uniHeidelbergAsterhLayer = mapLayersModule.create('uniHeidelbergAsterh', {zIndex: 2});
-    var customOverlayLayer = mapLayersModule.create('customOverlay', {zIndex: 1});
+    var gpxFileLayer = openlayersHelpers.getPredefinedLayer('gpxFile', {zIndex: 8});
+    var googleHybridLayer = openlayersHelpers.getPredefinedLayer('googleHybrid', {zIndex: 7});
+    var googleBikeLayer = openlayersHelpers.getPredefinedLayer('googleBike', {zIndex: 6});
+    var lonviaCyclingLayer = openlayersHelpers.getPredefinedLayer('lonviaCycling', {zIndex: 5});
+    var lonviaHikingLayer = openlayersHelpers.getPredefinedLayer('lonviaHiking', {zIndex: 4});
+    var mapquestHybLayer = openlayersHelpers.getPredefinedLayer('mapquestHyb', {zIndex: 3});
+    var uniHeidelbergAsterhLayer = openlayersHelpers.getPredefinedLayer('uniHeidelbergAsterh', {zIndex: 2});
+    var customOverlayLayer = openlayersHelpers.getPredefinedLayer('customOverlay', {zIndex: 1});
+
+    openlayersHelpers.initLayer(gpxFileLayer, {zIndex: 8});
+    openlayersHelpers.initLayer(googleHybridLayer, {zIndex: 7});
+    openlayersHelpers.initLayer(googleBikeLayer, {zIndex: 6});
+    openlayersHelpers.initLayer(lonviaCyclingLayer, {zIndex: 5});
+    openlayersHelpers.initLayer(lonviaHikingLayer, {zIndex: 4});
+    openlayersHelpers.initLayer(mapquestHybLayer, {zIndex: 3});
+    openlayersHelpers.initLayer(uniHeidelbergAsterhLayer, {zIndex: 2});
+    openlayersHelpers.initLayer(customOverlayLayer, {zIndex: 1});
+
 
     // Define map controls
     var attributionControl = openlayersHelpers.getPredefinedControl('attribution');
@@ -50,7 +71,7 @@ var map1 = (function () {
     var zoomSliderControl = openlayersHelpers.getPredefinedControl('zoomSlider');
 
     // Define layer groups
-    var layerGroups = [
+    var layers = [
         new ol.layer.Group({
             name: 'baseLayers',
             title: 'Base map',
@@ -75,9 +96,25 @@ var map1 = (function () {
         })
     ];
 
+    var controls = ol.control.defaults({
+        attribution: false,
+        attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
+            collapsible: false
+        }),
+        zoomOptions: {
+
+        }
+    }).extend([
+        attributionControl,
+        scaleLineControl,
+        fullScreenControl,
+        zoomSliderControl,
+        layerSwitcherControl
+    ]);
+
     // Map initialization
     var map = new ol.Map({
-        layers: layerGroups,
+        layers: layers,
         target: target,
         view: new ol.View({
             center: [0, 0],
@@ -90,8 +127,8 @@ var map1 = (function () {
     });
 
     // Associate helpers to the map
-    var helpers = new openlayersHelpers(map, {
-        debug: debug
+    openlayersHelpers.initMap(map, {
+        debug: true
     });
 
     /*
@@ -107,16 +144,10 @@ var map1 = (function () {
     // when you change the map container size "manually"
     // mapHelpers.updateSize();
 
-
-
-    $(function () {
-
-    });
-
+    openlayersHelpers.initLayerInputsBootstrapModal('#layer_settings_modal');
 
     return {
-        map: map,
-        helpers: helpers
+        map: map
     };
 
 })();

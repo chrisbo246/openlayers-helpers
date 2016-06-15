@@ -1,7 +1,7 @@
 /*eslint-env browser, jquery */
 /*global ol */
 /**
-* OL3 module.
+* OL3 map helpers
 * @see {@link http://openlayers.org/en/v3.12.1/apidoc/}
 * @class
 * @external $
@@ -12,7 +12,7 @@
 * @return {Object} Public functions / variables
 */
 /*eslint-disable no-unused-vars*/
-var openlayersHelpers = function (map, settings) {
+var openlayersMapHelpers = (function (mod) {
     /*eslint-enable no-unused-vars*/
     'use strict';
 
@@ -27,37 +27,18 @@ var openlayersHelpers = function (map, settings) {
         debug: true
     };
 
-    var $map;
+    var settings = defaults;
+
     var basil;
-
-
-    /**
-    * Create a new control using predefined settings
-    * @public
-    * @param {string} name - Predefined control
-    * @return {Object} - OL3 control
-    */
-    var getPredefinedControl = function (name) {
-        if (!openlayersPredefinedControls[name]) {
-            console.warn(name + ' control definition is not defined');
-            return false;
-        }
-        var control = openlayersPredefinedControls[name]();
-        //control.setProperties(settings.properties);
-        //if (properties) {
-        //control.setProperties(properties);
-        //}
-
-        return control;
-    };
 
 
 
     /**
     * Save map state using cookies or local storage
     * @public
+    * @param {Object} map - OL3 map instance
     */
-    var storeMapChanges = function () {
+    var storeMapChanges = function (map) {
 
         if (!basil) {
             return false;
@@ -92,9 +73,10 @@ var openlayersHelpers = function (map, settings) {
     /**
     * Save map state using cookies or local storage
     * @public
+    * @param {Object} map - OL3 map instance
     * @return {Boolean} Restore success
     */
-    var restoreMapProperties = function () {
+    var restoreMapProperties = function (map) {
 
         if (!basil) {
             return false;
@@ -130,8 +112,9 @@ var openlayersHelpers = function (map, settings) {
     /**
     * Display event logs
     * @public
+    * @param {Object} map - OL3 map instance
     */
-    var debug = function () {
+    var debug = function (map) {
 
         var view = map.getView();
 
@@ -164,8 +147,9 @@ var openlayersHelpers = function (map, settings) {
     /**
     * Return the selected base layer name
     * @public
+    * @param {Object} map - OL3 map instance
     */
-    var getSelectedBaseLayer = function () {
+    var getSelectedBaseLayer = function (map) {
 
         var layers = map.getLayers();
 
@@ -188,45 +172,13 @@ var openlayersHelpers = function (map, settings) {
 
 
     /**
-    * Finds recursively the layer with the specified key and value.
-    * @param {ol.layer.Base} layer
-    * @param {String} key
-    * @param {any} value
-    * @returns {ol.layer.Base}
-    */
-    var findLayerBy = function (layer, key, value) {
-
-        // If it's a single layer and the value was found, return the layer
-        if (layer.get(key) === value) {
-            return layer;
-        }
-
-        // If it's a group, search recursively
-        if (layer.getLayers) {
-            var layers = layer.getLayers().getArray();
-            var result;
-            layers.forEach(function (l) {
-                result = findLayerBy(l, key, value);
-                if (result) {
-                    return result;
-                }
-            });
-        }
-
-        // Else
-        return null;
-
-    };
-
-
-
-    /**
     * Center the map at a given position and make a zoom
     * @public
+    * @param {Object} map - OL3 map instance
     * @param {number} longitude - Longitude at EPSG:4326 projection
     * @param {number} latitude - Latitude at EPSG:4326 projection
     */
-    var setCenter = function (longitude, latitude) {
+    var setCenter = function (map, longitude, latitude) {
 
         var view = map.getView();
         view.setCenter(ol.proj.transform([longitude, latitude], 'EPSG:4326', 'EPSG:3857'));
@@ -239,8 +191,9 @@ var openlayersHelpers = function (map, settings) {
     /**
     * Try to geolocate user and center map on the position
     * @public
+    * @param {Object} map - OL3 map instance
     */
-    var setCenterOnPosition = function () {
+    var setCenterOnPosition = function (map) {
 
         var view = map.getView();
         var geolocation = new ol.Geolocation({
@@ -259,9 +212,10 @@ var openlayersHelpers = function (map, settings) {
     /**
     * Change zoom level
     * @public
+    * @param {Object} map - OL3 map instance
     * @param {Integer} zoom - Zoom level from 0 to 21
     */
-    var setZoom = function (zoom) {
+    var setZoom = function (map, zoom) {
 
         zoom = parseInt(zoom);
         if (zoom) {
@@ -275,8 +229,9 @@ var openlayersHelpers = function (map, settings) {
     /**
     * Zoom out and adjust center to fit the view extent
     * @public
+    * @param {Object} map - OL3 map instance
     */
-    var fitView = function () {
+    var fitView = function (map) {
 
         var view = map.getView();
         var extent = view.getExtent();
@@ -289,8 +244,9 @@ var openlayersHelpers = function (map, settings) {
     /**
     * Zoom out and adjust center to fit all layers in the map viewport
     * @public
+    * @param {Object} map - OL3 map instance
     */
-    var fitLayers = function () {
+    var fitLayers = function (map) {
 
         var view = map.getView();
         var extent = ol.extent.createEmpty();
@@ -306,9 +262,10 @@ var openlayersHelpers = function (map, settings) {
     /**
     * Zoom out and adjust center to fit the layer features
     * @public
-    * @param {Object} ol3 vector layer
+    * @param {Object} map - OL3 map instance
+    * @param {Object} layer - OL3 vector layer
     */
-    var fitVectorLayer = function (layer) {
+    var fitVectorLayer = function (map, layer) {
 
         var extent = layer.getSource().getExtent();
         map.getView().fit(extent, map.getSize());
@@ -321,11 +278,12 @@ var openlayersHelpers = function (map, settings) {
     * Zoom out and adjust center to fil a vectore layer feature
     * @see {@link http://openlayers.org/en/v3.4.0/examples/center.html}
     * @public
-    * @param {String} id - Feature id
+    * @param {Object} map - OL3 map instance
     * @param {Object} layer - Vector layer
+    * @param {String} id - Feature id
     * @param {Object} options - ol3 fit function parameters
     */
-    var fitLayerGeometry = function (id, layer, options) {
+    var fitLayerGeometry = function (map, layer, id, options) {
 
         var source = layer.getSource();
         var feature = source.getFeatureById(id);
@@ -345,11 +303,10 @@ var openlayersHelpers = function (map, settings) {
 
 
     /**
-    * Add a .flat and .narrow class to the map container according to map size
-    * @param {Number} width - Map width
-    * @param {Number} height - Map height
+    * Add CSS classes to the map container according to map size
+    * @param {Object} map - OL3 map instance
     */
-    var updateSize = function () {
+    var updateSize = function (map) {
 
         map.updateSize();
 
@@ -358,6 +315,8 @@ var openlayersHelpers = function (map, settings) {
         //$map.toggleClass('narrow', ($map.width() < settings.narrowWidth));
         //$map.toggleClass('flat', ($map.height() < settings.flatHeight));
 
+
+        var $map = $(map.get('target'));
         var $el = $map.find('.layer-switcher');
         if ($el) {
             $map.toggleClass('inline-layer-switcher', ($map.height() >= 200 && $map.height() < 500));
@@ -374,137 +333,65 @@ var openlayersHelpers = function (map, settings) {
 
 
     /**
-    * Get all tiles in rectangle area
+    * Execute common tasks after map initialisation
     * @public
-    * @param {Array} coord - Longitude, latitude
-    * @param {Integer} zoom - Zoom
-    * @return {Array}
+    * @param {Object} map - OL3 map instance
     */
-    /*var getTileURL = function (coord, zoom) {
+    var initMap = function (map, options) {
 
-    var cor = transform2(coord[0], coord[1]);
-    var lon = cor[0];
-    var lat = cor[1];
-    var out = [];
-    var xtile = parseInt(Math.floor((lon + 180) / 360 * (1 << zoom)));
-    var ytile = parseInt(Math.floor((1 - Math.log(Math.tan(lat.toRad()) + 1 / Math.cos(lat.toRad())) / Math.PI) / 2 * (1 << zoom)));
-    console.log('>> ' + zoom + '/' + xtile + '/' + ytile);
-    out[0] = zoom;
-    out[1] = xtile;
-    out[2] = ytile;
+        // Merge default and custom map
+        settings = $.extend(true, {}, defaults, options);
 
-    return out;
+        // Add a .flat and .narrow class to the map container according to map size
+        window.onresize = function () {
+            updateSize(map);
+        };
+        updateSize(map);
 
-};*/
+        // Init Basil
+        if (typeof window.Basil !== 'undefined') {
+            // Define an unique namespace to store map data
+            if (!settings.basil.namespace) {
+                settings.basil.namespace = map.get('target');
+            }
+            basil = new window.Basil(settings.basil);
 
+            // Try to restore map center and zoom from the local storage
+            if (!restoreMapProperties(map)) {
+                // Or center map on user position and set a default zoom
+                if (settings.centerOnPosition) {
+                    setCenterOnPosition(map);
+                    map.getView().setZoom(12);
+                }
+            }
 
+            // Check map events and store changes to local storage
+            storeMapChanges(map);
 
-/**
-* Get all tiles in rectangle area
-* @public
-* @param {Array} coord1 - Longitude, latitude
-* @param {Array} coord2 - Longitude, latitude
-*/
-/*var getAllTiles = function (coord1, coord2) {
+        }
 
-var out1 = getTileURL(coord1, 10);
-var out2 = getTileURL(coord2, 10);
-var outTmp1;
+        if (settings.debug) {
+            debug(map);
+        }
 
-if(out1[1] > out2[1]) {
-outTmp1 = out1[1];
-out1[1] = out2[1];
-out2[1] = outTmp1;
-}
-if(out1[2] > out2[2]) {
-outTmp1 = out1[2];
-out1[2] = out2[2];
-out2[2] = outTmp1;
-}
-
-console.log('zoom' + out1[0] + ' from ' + out1[1] + ' to ' + out2[1] + ' from ' + out1[2] + ' to ' + out2[2]);
-while(out1[1] <= out2[1]) {
-while(out1[2] <= out2[2]) {
-console.log('*** ' + out1[1] + '/' + out1[2]);
-out1[2]++;
-}
-out1[1]++;
-}
-
-};*/
-
-
-
-/**
-* Execute common tasks after map initialisation
-* @private
-*/
-var init = function () {
-
-    // Merge default and custom settings
-    settings = $.extend(true, {}, defaults, settings);
-
-    // Define map container
-    $map = $('#' + map.get('target'));
-
-    // Redraw the map when the screen size change
-    window.onresize = function () {
-        updateSize();
     };
 
-    // Add a .flat and .narrow class to the map container according to map size
-    updateSize();
-
-    // Init Basil
-    if (typeof window.Basil !== 'undefined') {
-        // Define an unique namespace to store map data
-        if (!settings.basil.namespace) {
-            settings.basil.namespace = map.get('target');
-        }
-        basil = new window.Basil(settings.basil);
-
-        // Try to restore map center and zoom from the local storage
-        if (!restoreMapProperties()) {
-            // Or center map on user position and set a default zoom
-            if (settings.centerOnPosition) {
-                setCenterOnPosition();
-                map.getView().setZoom(12);
-            }
-        }
-
-        // Check map events and store changes to local storage
-        storeMapChanges();
-
-    }
-
-    if (settings.debug) {
-        debug();
-    }
-
-};
 
 
+    return $.extend(mod, {
+        initMap: initMap,
+        fitLayerGeometry: fitLayerGeometry,
+        fitLayers: fitLayers,
+        fitVectorLayer: fitVectorLayer,
+        fitView: fitView,
+        getSelectedBaseLayer: getSelectedBaseLayer,
+        restoreMapProperties: restoreMapProperties,
+        setCenter: setCenter,
+        setCenterOnPosition: setCenterOnPosition,
+        settings: settings,
+        setZoom: setZoom,
+        storeMapChanges: storeMapChanges,
+        updateSize: updateSize
+    });
 
-init();
-
-
-
-return {
-    findLayerBy: findLayerBy,
-    fitLayerGeometry: fitLayerGeometry,
-    fitLayers: fitLayers,
-    fitVectorLayer: fitVectorLayer,
-    fitView: fitView,
-    getSelectedBaseLayer: getSelectedBaseLayer,
-    map: map,
-    restoreMapProperties: restoreMapProperties,
-    setCenter: setCenter,
-    setCenterOnPosition: setCenterOnPosition,
-    settings: settings,
-    setZoom: setZoom,
-    storeMapChanges: storeMapChanges,
-    updateSize: updateSize,
-    getPredefinedControl: getPredefinedControl
-};
-
-};
+})(openlayersHelpers || {});

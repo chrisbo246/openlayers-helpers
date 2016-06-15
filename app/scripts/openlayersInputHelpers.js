@@ -1,25 +1,25 @@
 /*eslint-env browser, jquery */
-/*global ol, Basil, parsley, webappHelpers */
+/*global ol */
 /**
-* OL3 layers module.
+* OL3 input helpers
 * @module
 * @external $
 * @external ol
 * @return {Object} Public functions / variables
 */
 /*eslint-disable no-unused-vars*/
-var mapLayersModule = (function () {
+var openlayersInputHelpers = (function (mod) {
     /*eslint-enable no-unused-vars*/
     'use strict';
 
-    var settings = {
-        debug: false,
-        properties: {
-            visible: false
-        },
-        basil: {
-        }
+    var defaults = {
+        formSelector: '#layer_settings_form',
+        formGroupSelector: '.form-group'
     };
+
+    var settings = defaults;
+
+    var selectedLayer;
 
     var olLayerTypes = ['Base', 'Group', 'Heatmap', 'Image', 'Layer', 'Tile', 'Vector', 'VectorTile'];
 
@@ -49,166 +49,12 @@ var mapLayersModule = (function () {
     'lineJoin': 'setLineJoin', 'miterLimit': 'setMiterLimit', 'width': 'setWidth', 'zIndex': 'getZIndex'};
 
 
-    var protocol = (window.location.protocol === 'https:') ? 'https:' : 'http:';
-
-    var layers = {};
-    var selectedLayer;
-    var basil;
-
-    if (typeof Basil === 'function') {
-        basil = new window.Basil(settings.basil);
-    }
-
-
-
-    /**
-    * Display some logs about layer events
-    * @private
-    * @param {Object} layer - ol.layer
-    */
-    var debug = function (layer) {
-
-        if (!settings.debug) {
-            webappHelpers.hideLogs();
-            return false;
-        }
-
-        // postcompose precompose render propertychange
-        'change change:blur change:extent change:gradient change:layers change:maxResolution change:minResolution change:opacity change:preload change:radius change:source change:useInterimTilesOnError change:visible change:zIndex'.split(' ').forEach(function (eventType) {
-            layer.on(eventType, function (e) {
-                if (e.key) {
-                    console.log('Layer ' + e.key + ' changed', layer.get(e.key));
-                } else {
-                    console.log(e.target.get('name') + ' layer' + e.type, e);
-                }
-
-            });
-        });
-
-    };
-
-
-
-    /**
-    * Restore some properties from the local storage and save changes
-    * @private
-    * @param {Object} layer - ol.layer
-    */
-    var watchLayerChanges = function (layer) {
-
-        // Store layer properties changes
-        layer.on('propertychange', function () {
-
-            var namespace = layer.get('name');
-            if (namespace) {
-
-                var properties = layer.getProperties();
-                var key = 'properties';
-                var value = {
-                    visible: properties.visible,
-                    zIndex: properties.zIndex,
-                    opacity: properties.opacity
-                };
-                basil.set(key, value, {'namespace': namespace});
-                console.log(namespace + ' properties stored', value);
-
-            }
-
-        });
-
-    };
-
-
-
-    /**
-    * Restore all layers properties from the local storage
-    * @private
-    * @param {Object} layer - ol.layer
-    */
-    var restoreLayer = function (layer) {
-
-        var namespace = layer.get('name');
-        if (namespace) {
-
-            var key = 'properties';
-            var value = basil.get(key, {'namespace': namespace});
-            if (value !== null) {
-                layer.setProperties(value);
-                console.log(namespace + ' ' + key + ' restored', value);
-            }
-
-        }
-
-    };
-
-
-
-    /**
-    * Create a new layer using predefined settings
-    * @public
-    * @param {string} name - Predefined layer (variable name)
-    * @param {Object} [properties] - Layer custom parameters
-    * @return {Object} OL3 layer
-    */
-    var create = function (name, properties) {
-
-        if (!openlayersPredefinedLayers[name]) {
-            console.warn(name + ' layer definition is not defined');
-            return false;
-        }
-
-        // Define the new layer with a predefined layer
-        var layer = openlayersPredefinedLayers[name]();
-
-        debug(layer);
-
-        // Apply default and custom settings
-        layer.setProperties($.extend(true, {}, settings.properties, properties));
-
-        // Append a link to the settings after each title
-        var title = layer.get('title');
-        if (title) {
-            layer.set('title', title
-            + ' <a href="#layer_settings_modal" data-toggle="modal" data-layer="' + name + '">'
-            + '<span class="glyphicon glyphicon-cog"></span></a>');
-        }
-
-        if (basil) {
-            restoreLayer(layer);
-            watchLayerChanges(layer);
-        }
-
-        return layer;
-    };
-
-
-
-    /**
-    * Apply a function on (nested) layers
-    * @public
-    * @param {Object} layer - Map object or layer group
-    * @param {function} fn - Function with layer as parameter, to apply to each layer
-    */
-    var treatLayers = function (layer, fn) {
-
-        $.each(layers, function (i, l) {
-            if (l.getLayers()) {
-                treatLayers(l, fn);
-            } else {
-                fn(l);
-            }
-        });
-
-    };
-
-
 
     /**
     * Live update layer values once a field was validated by Parsley
-    * @public
-    * @param {Object} layer - Map object or layer group
+    * @private
     */
-    var validateSettingsForm = function (formSelector) {
+    var validateLayerInputs = function () {
 
         var $input, key, value, style, type;
 
@@ -217,7 +63,7 @@ var mapLayersModule = (function () {
             return false;
         }
 
-        var $form = $(formSelector);
+        var $form = $(settings.formSelector);
         $form.parsley({
             excluded: 'input[type=button], input[type=submit], input[type=reset], input[type=hidden], [disabled], :hidden'
         })
@@ -247,7 +93,7 @@ var mapLayersModule = (function () {
                     dataProjection: 'EPSG:4326',
                     featureProjection: 'EPSG:3857'
                 });
-                //openlayersHelpers.fitVectorLayer(selectedLayer);
+                //openlayersMapHelpers.fitVectorLayer(selectedLayer);
             }
 
             // Update layer style
@@ -279,12 +125,12 @@ var mapLayersModule = (function () {
     * @public
     * @param {Object} layer - Map object or layer group
     */
-    var initSettingsForm = function (layer, formSelector, formGroupSelector) {
+    var initLayerInputs = function (layer) {
 
         var $input, $groups, key, value;
 
-        var $form = $(formSelector);
-        var $formGroups = $form.find(formGroupSelector);
+        var $form = $(settings.formSelector);
+        var $formGroups = $form.find(settings.formGroupSelector);
 
         // Memorize the selected layer
         selectedLayer = layer;
@@ -499,94 +345,48 @@ var mapLayersModule = (function () {
 
         // Initialize Parsley excluding hidden fields
         // and update layer properties when the form is submitted
-        validateSettingsForm(formSelector);
+        validateLayerInputs();
 
     };
 
 
 
-    /**
-    * Update layer source url
-    * @public
-    * @param {Object} layer - OL3 layer
-    * @param {String|array} url - URL
-    */
-    var updateSourceUrl = function (layer, url) {
+    var initLayerInputsBootstrapModal = function (modalSelector) {
 
-        if (!layer) {
-            return false;
-        }
+        // Select the layer passed to the modal
+        $(modalSelector).on('show.bs.modal', function (e) {
+            var $modal = $(this);
 
-        var source = layer.getSource();
-
-        if (typeof source.setUrls !== 'undefined') {
-            if ($.isArray(url)) {
-                source.setUrls(url);
-            } else {
-                url = $.trim(url);
-                source.setUrl(url);
+            // Select the layer passed as link attribute
+            var layerVarName = $(e.relatedTarget).data('layer') + 'Layer';
+            if (typeof layerVarName !== 'undefined') {
+                /*eslint-disable no-eval*/
+                selectedLayer = eval(layerVarName);
+                /*eslint-enable no-eval*/
             }
-        }
 
-        // Show layer if the URL is defined, else hide layer
-        //layer.setVisible((url));
+            if (selectedLayer) {
 
-    };
+                // Populate fields with the selected layer properties
+                // hide unwanted field groups
+                // validate form and update layer values
+                initLayerInputs(settings.selectedLayer);
+                //mapLayersModule.initSettingsForm(selectedLayer, '#layer_settings_form', '.form-group, fieldset');
 
+                // Change modal title
+                var title = selectedLayer.get('title');
+                $modal.find('.modal-title').html(title);
 
-
-    /**
-    * Update the GPX layer with the input file values
-    * @private
-    * @param {Object} layer - OL layer
-    * @param {Object} files - Input file [files]
-    * @param {Object} featuresOptions - Features options
-    */
-    var loadFileFeatures = function (layer, files, featuresOptions) {
-
-        if (files.length === 0) {
-            return false;
-        }
-
-        var source = layer.getSource();
-
-        // Remove all features
-        source.clear();
-
-        var dfd = webappHelpers.reader(files, function (result) {
-
-            // Import features from files
-            var format = source.getFormat();
-            var features = format.readFeatures(result, featuresOptions);
-            source.addFeatures(features);
-
-            // Display layer
-            layer.setVisible(true);
+            }
 
         });
-
-        // Refresh the layerswitcher control
-        //layerSwitcherControl.renderPanel();
-
-        // Adjust the view to fit tracks
-        //mapMod1.fitVectorLayer(gpxLayer);
-
-        return dfd;
-
     };
 
-    // _____________________________________________________________________________________________
 
 
-
-    return {
-        create: create,
-        loadFileFeatures: loadFileFeatures,
-        initSettingsForm: initSettingsForm,
+    return $.extend(mod, {
         selectedLayer: selectedLayer,
-        settings: settings,
-        treatLayers: treatLayers,
-        updateSourceUrl: updateSourceUrl
-    };
+        initLayerInputsBootstrapModal: initLayerInputsBootstrapModal
+    });
 
-})();
+})(openlayersHelpers || {});

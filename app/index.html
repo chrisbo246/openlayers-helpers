@@ -12,6 +12,7 @@
     <!-- build:css styles/vendor.css -->
     <link rel="stylesheet" href="/bower_components/OpenLayers/dist/ol.css">
     <!-- bower:css -->
+    <link rel="stylesheet" href="/bower_components/ol3-layerswitcher/src/ol3-layerswitcher.css" />
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -29,9 +30,74 @@
     <![endif]-->
 
     <div class="container-fluid">
-        <div id="map1" class="map">
-            <div class="spinner"></div>
+        <div class="col-md-12">
+            <div id="map1" class="map">
+                <div class="glyphicon glyphicon-cog spinner"></div>
+            </div>
         </div>
+    </div>
+
+    <div id="layer_settings_modal" class="modal fade" tabindex="-1" role="dialog">
+        <form id="layer_settings_form">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Layer settings</h4>
+                    </div>
+                    <div class="modal-body">
+                        <fieldset>
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <label>
+                                        <input id="layer_visible" type="checkbox" data-ol-layer="*" data-ol-property="visible"> Visible
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="layer_opacity">Opacity<span class="glyphicon glyphicon-question-sign pull-right" data-toggle="tooltip" title="Adjust the layer transparency from 0 (transparent) to 1 (opaque)."></span></label>
+                                <input id="layer_opacity" class="form-control" data-ol-layer="*" data-ol-property="opacity" type="range" min="0" max="1" value="0.8" step="0.1" required="" />
+                                <span class="help-block"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="layer_zindex">Level<span class="glyphicon glyphicon-question-sign pull-right" data-toggle="tooltip" title="You can change layers order providing a positive or negative z-index (1 by default)."></span></label>
+                                <input id="layer_zindex" class="form-control" data-ol-layer="*" data-ol-property="zIndex" type="number" value="0" />
+                                <span class="help-block"></span>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="layer_source_urls">URLs <small></small> <span class="glyphicon glyphicon-question-sign pull-right" data-toggle="tooltip" title="You can use another map service by providing the tile server URL. You can also add some alternative servers (one by line)."></span></label>
+                                <textarea id="layer_source_urls" class="form-control" data-ol-source="*" data-ol-property="urls" placeholder="http://" pattern="^(https?://[^\n]+\n?)+" ></textarea>
+                                <span class="help-block">e.g. https://a.tile.openstreetmap.org/{z}/{x}/{y}.png (<a href="https://wiki.openstreetmap.org/wiki/Tile_servers" target="_blank">see also</a>).</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="layer_style_stroke_color">Color <small></small> <span class="glyphicon glyphicon-question-sign pull-right" data-toggle="tooltip" title="Change line color."></span></label>
+                                <input id="layer_style_stroke_color" class="form-control" data-ol-style="Stroke" data-ol-property="color" type="color" />
+                                <span class="help-block"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="layer_style_stroke_width">Width <small></small> <span class="glyphicon glyphicon-question-sign pull-right" data-toggle="tooltip" title="Change line color."></span></label>
+                                <input id="layer_style_stroke_width" class="form-control" data-ol-style="Stroke" data-ol-property="width" type="number" min="1"/>
+                                <span class="help-block"></span>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="gpx_file">File <small></small> <span class="glyphicon glyphicon-question-sign pull-right" data-toggle="tooltip" title="Select a files from your device. Many vector formats are supported (GPX, XML, KML, GeoJSON, etc...)."></span></label>
+                                <input id="gpx_file" class="form-control" data-ol-source="Vector" data-ol-format="GPX" type="file" accept=".gpx" multiple="" required="" />
+                                <span class="help-block"></span>
+                                <output id="gpx_file_output"></output>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                        <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> OK</button>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
@@ -45,10 +111,11 @@
         </script>
 
         <!-- build:js scripts/vendor.js -->
+        <script src="/bower_components/OpenLayers/dist/ol.js"></script>
         <!-- bower:js -->
         <script src="/bower_components/jquery/dist/jquery.js"></script>
+        <script src="/bower_components/ol3-layerswitcher/src/ol3-layerswitcher.js"></script>
         <!-- endbower -->
-        <script src="/bower_components/OpenLayers/dist/ol.js"></script>
         <script src="/bower_components/webapp-helpers/app/scripts/webapp-helpers.js"></script>
         <!-- endbuild -->
 
@@ -68,13 +135,17 @@
         <!-- endbuild -->
 
         <!-- build:js scripts/main.js -->
-        <script src="scripts/openlayersPredefinedLayers.js"></script>
+        <script src="scripts/openlayersHelpers.js"></script>
+        <script src="scripts/openlayersInputHelpers.js"></script>
+        <script src="scripts/openlayersLayerHelpers.js"></script>
+        <script src="scripts/openlayersMapHelpers.js"></script>
         <script src="scripts/openlayersPredefinedControls.js"></script>
-        <script src="scripts/mapDrawModule.js"></script>
-        <script src="scripts/mapInputsModule.js"></script>
-        <script src="scripts/mapLayersModule.js"></script>
-        <script src="scripts/openlayers-helpers.js"></script>
+        <script src="scripts/openlayersPredefinedLayers.js"></script>
         <script src="scripts/main.js"></script>
         <!-- endbuild -->
-    </body>
-    </html>
+        <!--
+        <script src="scripts/mapDrawModule.js"></script>
+        <script src="scripts/openlayersPredefinedInputs.js"></script>
+    -->
+</body>
+</html>

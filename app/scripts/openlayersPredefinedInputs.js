@@ -1,15 +1,15 @@
 /*eslint-env browser, jquery */
 /*global escape, ol */
 /**
- * OL3 inputs module.
- * @module
- * @external $
- * @external escape
- * @external ol
- * @return {Object} Public functions / variables
- */
+* OL3 predefined inputs
+* @module
+* @external $
+* @external escape
+* @external ol
+* @return {Object} Public functions / variables
+*/
 /*eslint-disable no-unused-vars*/
-var mapInputsModule = (function () {
+var openlayersPredefinedInputs = (function (mod) {
     /*eslint-enable no-unused-vars*/
     'use strict';
 
@@ -24,27 +24,10 @@ var mapInputsModule = (function () {
 
 
     /**
-     * Create a new input using predefined settings
-     * @public
-     * @param {string} name - Predefined input (variable name)
-     * @return {Object} OL3 layer
-     */
-    var create = function (name, selector) {
-        if (!inputs[name]) {
-            console.warn(name + ' input definition does not exists');
-            return false;
-        }
-        var input = inputs[name](selector);
-        return input;
-    };
-
-
-
-    /**
-     * Base layer select
-     * @param {string} selector - Select input ID
-     * @param {Object} map - OL3 map
-     */
+    * Base layer select
+    * @param {string} selector - Select input ID
+    * @param {Object} map - OL3 map
+    */
     inputs.layer = function (selector) {
         var $input = $(selector);
         if ($input) {
@@ -65,10 +48,10 @@ var mapInputsModule = (function () {
 
 
     /**
-     * Map zoom input
-     * @param {string} selector - Input ID or class
-     * @param {Object} map - OL3 map
-     */
+    * Map zoom input
+    * @param {string} selector - Input ID or class
+    * @param {Object} map - OL3 map
+    */
     inputs.zoom = function (selector) {
         var $input = $(selector);
         if ($input) {
@@ -88,10 +71,10 @@ var mapInputsModule = (function () {
 
 
     /**
-     * Map resolution input
-     * @param {string} selector - Input ID or class
-     * @param {Object} map - OL3 map
-     */
+    * Map resolution input
+    * @param {string} selector - Input ID or class
+    * @param {Object} map - OL3 map
+    */
     inputs.resolution = function (selector) {
         var $input = $(selector);
         if ($input) {
@@ -111,10 +94,10 @@ var mapInputsModule = (function () {
 
 
     /**
-     * Map rotation input
-     * @param {string} selector - Input ID or class
-     * @param {Object} map - OL3 map
-     */
+    * Map rotation input
+    * @param {string} selector - Input ID or class
+    * @param {Object} map - OL3 map
+    */
     inputs.rotation = function (selector) {
         var $input = $(selector);
         $input.on('change', function () {
@@ -131,10 +114,10 @@ var mapInputsModule = (function () {
 
 
     /**
-     * Map X center input
-     * @param {string} selector - Input ID or class
-     * @param {Object} map - OL3 map
-     */
+    * Map X center input
+    * @param {string} selector - Input ID or class
+    * @param {Object} map - OL3 map
+    */
     inputs.centerX = function (selector) {
         var $input = $(selector);
         $input.on('change', function () {
@@ -152,10 +135,10 @@ var mapInputsModule = (function () {
 
 
     /**
-     * Map Y center input
-     * @param {string} selector - Input ID or class
-     * @param {Object} map - OL3 map
-     */
+    * Map Y center input
+    * @param {string} selector - Input ID or class
+    * @param {Object} map - OL3 map
+    */
     inputs.centerY = function (selector) {
         var $input = $(selector);
         $input.on('change', function () {
@@ -173,10 +156,10 @@ var mapInputsModule = (function () {
 
 
     /**
-     * Map XY center input
-     * @param {string} selector - Input ID or class
-     * @param {Object} map - OL3 map
-     */
+    * Map XY center input
+    * @param {string} selector - Input ID or class
+    * @param {Object} map - OL3 map
+    */
     inputs.center = function (Xselector, Yselector) {
         var $centerX = $(Xselector);
         var $centerY = $(Yselector);
@@ -197,8 +180,8 @@ var mapInputsModule = (function () {
 
 
     /**
-     * Export map as PNG
-     */
+    * Export map as PNG
+    */
     inputs.exportPNG = function () {
         var $input = document.getElementById('export-png');
         if ($input) {
@@ -215,13 +198,13 @@ var mapInputsModule = (function () {
 
 
     /**
-     * Update layer source url from a file input
-     * <input id="gpx_file" type="file" accept=".gpx" />
-     * @see {@link http://www.html5rocks.com/en/tutorials/file/dndfiles/}
-     * @public
-     * @param {string} selector - File input ID
-     * @param {Object} layer - OL3 vector layer
-     */
+    * Update layer source url from a file input
+    * <input id="gpx_file" type="file" accept=".gpx" />
+    * @see {@link http://www.html5rocks.com/en/tutorials/file/dndfiles/}
+    * @public
+    * @param {string} selector - File input ID
+    * @param {Object} layer - OL3 vector layer
+    */
     inputs.GPXSource = function (selector, layer) {
         if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
             console.warn('The File APIs are not fully supported in this browser.');
@@ -249,8 +232,31 @@ var mapInputsModule = (function () {
     };
 
 
-    return {
-        create: create
+
+    /**
+    * Create a new input using predefined settings
+    * @public
+    * @param {string} name - Predefined input (variable name)
+    * @return {Object} OL3 layer
+    */
+    var getPredefinedInput = function (name, selector) {
+
+        //if (!openlayersPredefinedInputs || !openlayersPredefinedInputs[name]) {
+        if (typeof inputs[name] !== 'function') {
+            console.warn(name + ' input definition does not exists');
+            return false;
+        }
+
+        //var input = openlayersPredefinedInputs[name](selector);
+        var input = inputs[name](selector);
+
+        return input;
+
     };
 
-})();
+    return $.extend(mod, {
+        inputs: inputs,
+        getPredefinedInput: getPredefinedInput
+    });
+
+})(openlayerHelpers || {});

@@ -1,13 +1,13 @@
 /*eslint-env browser, jquery */
 /*global ol */
 /**
-* OL3 controls module.
+* OL3 predefined controls
 * @module
 * @external ol
 * @return {Object} Public functions / variables
 */
 /*eslint-disable no-unused-vars*/
-var mapControlsModule = (function () {
+var openlayersPredefinedControls = (function (mod) {
     /*eslint-enable no-unused-vars*/
     'use strict';
 
@@ -67,12 +67,6 @@ var mapControlsModule = (function () {
         });
     };
 
-    controls.layerSwitcher = function () {
-        return new ol.control.LayerSwitcher({
-            //tipLabel: $.t('buttons:olLayerswitcher.label')
-        });
-    };
-
     controls.mousePosition = function () {
         return new ol.control.MousePosition({
             coordinateFormat: ol.coordinate.createStringXY(4),
@@ -85,8 +79,45 @@ var mapControlsModule = (function () {
         });
     };
 
+    controls.layerSwitcher = function () {
+        return new ol.control.LayerSwitcher({
+            //tipLabel: $.t('buttons:olLayerswitcher.label')
+        });
+    };
 
 
-    return controls;
 
-})();
+    /**
+    * Create a new control using predefined settings
+    * @public
+    * @param {string} name - Predefined control
+    * @return {Object} - OL3 control
+    */
+    var getPredefinedControl = function (name) {
+
+        //if (!openlayersPredefinedControls || !openlayersPredefinedControls[name]) {
+        if (typeof controls[name] !== 'function') {
+            console.warn(name + ' control definition is not defined');
+            return false;
+        }
+
+        //var control = openlayersPredefinedControls[name]();
+        var control = controls[name]();
+
+        //control.setProperties(settings.properties);
+        //if (properties) {
+        //control.setProperties(properties);
+        //}
+
+        return control;
+
+    };
+
+
+
+    return $.extend(mod, {
+        controls: controls,
+        getPredefinedControl: getPredefinedControl
+    });
+
+})(openlayersHelpers || {});
