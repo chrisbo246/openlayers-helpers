@@ -83,13 +83,13 @@ var openlayersInputHelpers = (function (mod) {
             if ($input.is('[data-ol-source][data-ol-property="urls"]')) {
                 value = webappHelpers.getInputValue($input);
                 value = value.split('\n');
-                updateSourceUrl(selectedLayer, value);
+                mod.updateSourceUrl(selectedLayer, value);
             }
 
             // Update source features
             if ($input.is('[data-ol-source="Vector"][data-ol-format="GPX"]')) {
                 value = webappHelpers.getInputValue($input);
-                loadFileFeatures(selectedLayer, value, {
+                mod.loadFileFeatures(selectedLayer, value, {
                     dataProjection: 'EPSG:4326',
                     featureProjection: 'EPSG:3857'
                 });
@@ -358,10 +358,10 @@ var openlayersInputHelpers = (function (mod) {
             var $modal = $(this);
 
             // Select the layer passed as link attribute
-            var layerVarName = $(e.relatedTarget).data('layer') + 'Layer';
+            var layerName = $(e.relatedTarget).data('layer-name');
             if (typeof layerVarName !== 'undefined') {
                 /*eslint-disable no-eval*/
-                selectedLayer = eval(layerVarName);
+                selectedLayer = eval(layerName + 'Layer');
                 /*eslint-enable no-eval*/
             }
 
@@ -386,7 +386,7 @@ var openlayersInputHelpers = (function (mod) {
 
     return $.extend(mod, {
         selectedLayer: selectedLayer,
-        initLayerInputsBootstrapModal: initLayerInputsBootstrapModal
+        initLayerInputs: initLayerInputs
     });
 
 })(openlayersHelpers || {});

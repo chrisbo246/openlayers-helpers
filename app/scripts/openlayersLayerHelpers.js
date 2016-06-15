@@ -256,7 +256,7 @@ var openlayersLayerHelpers  = (function (mod) {
         var title = layer.get('title');
         if (name && title) {
             layer.set('title', title
-            + ' <a href="#layer_settings_modal" data-toggle="modal" data-layer="' + name + '">'
+            + ' <a href="#layer_settings_modal" data-toggle="modal" data-layer-name="' + name + '">'
             + '<span class="glyphicon glyphicon-cog"></span></a>');
         }
 

@@ -316,7 +316,7 @@ var openlayersMapHelpers = (function (mod) {
         //$map.toggleClass('flat', ($map.height() < settings.flatHeight));
 
 
-        var $map = $(map.get('target'));
+        var $map = $('#' + map.get('target'));
         var $el = $map.find('.layer-switcher');
         if ($el) {
             $map.toggleClass('inline-layer-switcher', ($map.height() >= 200 && $map.height() < 500));
@@ -348,13 +348,12 @@ var openlayersMapHelpers = (function (mod) {
         };
         updateSize(map);
 
-        // Init Basil
+        // Save / restore map position using basil.js
         if (typeof window.Basil !== 'undefined') {
-            // Define an unique namespace to store map data
-            if (!settings.basil.namespace) {
-                settings.basil.namespace = map.get('target');
-            }
-            basil = new window.Basil(settings.basil);
+
+            basil = new window.Basil($.extend({}, settings.basil, {
+                namespace: map.get('target')
+            }));
 
             // Try to restore map center and zoom from the local storage
             if (!restoreMapProperties(map)) {
@@ -367,6 +366,15 @@ var openlayersMapHelpers = (function (mod) {
 
             // Check map events and store changes to local storage
             storeMapChanges(map);
+
+        } else {
+
+            if (settings.centerOnPosition) {
+                setCenterOnPosition(map);
+                map.getView().setZoom(12);
+            }
+
+            console.warn('Basil is not defined');
 
         }
 

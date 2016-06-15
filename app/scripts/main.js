@@ -18,7 +18,9 @@ var map1 = (function () {
     /*eslint-enable no-unused-vars*/
     'use strict';
 
-    // Map container id
+    var map;
+
+    // Map container id (without #)
     var target = 'map1';
 
     // Define map base layers
@@ -42,16 +44,15 @@ var map1 = (function () {
     openlayersHelpers.initLayer(mapquestOSMLayer);
     openlayersHelpers.initLayer(mapquestSatLayer);
 
-
     // Define map layers
-    var gpxFileLayer = openlayersHelpers.getPredefinedLayer('gpxFile', {zIndex: 8});
-    var googleHybridLayer = openlayersHelpers.getPredefinedLayer('googleHybrid', {zIndex: 7});
-    var googleBikeLayer = openlayersHelpers.getPredefinedLayer('googleBike', {zIndex: 6});
-    var lonviaCyclingLayer = openlayersHelpers.getPredefinedLayer('lonviaCycling', {zIndex: 5});
-    var lonviaHikingLayer = openlayersHelpers.getPredefinedLayer('lonviaHiking', {zIndex: 4});
-    var mapquestHybLayer = openlayersHelpers.getPredefinedLayer('mapquestHyb', {zIndex: 3});
-    var uniHeidelbergAsterhLayer = openlayersHelpers.getPredefinedLayer('uniHeidelbergAsterh', {zIndex: 2});
-    var customOverlayLayer = openlayersHelpers.getPredefinedLayer('customOverlay', {zIndex: 1});
+    var gpxFileLayer = openlayersHelpers.getPredefinedLayer('gpxFile');
+    var googleHybridLayer = openlayersHelpers.getPredefinedLayer('googleHybrid');
+    var googleBikeLayer = openlayersHelpers.getPredefinedLayer('googleBike');
+    var lonviaCyclingLayer = openlayersHelpers.getPredefinedLayer('lonviaCycling');
+    var lonviaHikingLayer = openlayersHelpers.getPredefinedLayer('lonviaHiking');
+    var mapquestHybLayer = openlayersHelpers.getPredefinedLayer('mapquestHyb');
+    var uniHeidelbergAsterhLayer = openlayersHelpers.getPredefinedLayer('uniHeidelbergAsterh');
+    var customOverlayLayer = openlayersHelpers.getPredefinedLayer('customOverlay');
 
     openlayersHelpers.initLayer(gpxFileLayer, {zIndex: 8});
     openlayersHelpers.initLayer(googleHybridLayer, {zIndex: 7});
@@ -112,39 +113,76 @@ var map1 = (function () {
         layerSwitcherControl
     ]);
 
-    // Map initialization
-    var map = new ol.Map({
-        layers: layers,
-        target: target,
-        view: new ol.View({
-            center: [0, 0],
-            zoom: 4,
-            minZoom: 2,
-            maxZoom: 19
-        }),
-        controls: controls,
-        logo: false
+
+    $(function () {
+
+        // Map initialization
+        map = new ol.Map({
+            layers: layers,
+            target: target,
+            view: new ol.View({
+                center: [0, 0],
+                zoom: 4,
+                minZoom: 2,
+                maxZoom: 19
+            }),
+            controls: controls,
+            logo: false
+        });
+
+        // Associate helpers to the map
+        openlayersHelpers.initMap(map, {
+            debug: true
+        });
+
+        /*
+        // Try to restore map center and zoom from the local storage
+        if (!mapHelpers.restoreMapProperties()) {
+        // Or center map on user position and set a default zoom
+        mapHelpers.setCenterOnPosition();
+        mapHelpers.map.getView().setZoom(12);
+        // mapHelpers.storeMapChanges();
+        */
+
+        // You must call the updateSize() function
+        // when you change the map container size "manually"
+        // mapHelpers.updateSize();
+
+
+        // Force the Bootstrap modal API to initialize the layerswitcher links
+        $('.layer-switcher').on('click', 'a[data-toggle="modal"]', function (e) {
+            e.preventDefault();
+            $(this).trigger('click.bs.modal.data-api');
+        });
+
+        // Populate the layer inputs when the modal show up
+        $('#layer_settings_modal').on('show.bs.modal', function (e) {
+            var $modal = $(this);
+
+            var layerVarName = $(e.relatedTarget).data('layer-name') + 'Layer';
+            if (typeof layerVarName !== 'undefined') {
+                /*eslint-disable no-eval*/
+                var selectedLayer = eval(layerVarName);
+                /*eslint-enable no-eval*/
+                if (selectedLayer) {
+                    openlayersHelpers.initLayerInputs(selectedLayer);
+                    var title = selectedLayer.get('title');
+                    $modal.find('.modal-title').html(title);
+                }
+            }
+
+        });
+
+        // Update map overlay when user click ok
+        $('#layer_settings_form').on('submit', function (e) {
+            e.preventDefault();
+            var $modal = $('#layer_settings_modal');
+            $modal.modal('hide');
+        });
+
     });
 
-    // Associate helpers to the map
-    openlayersHelpers.initMap(map, {
-        debug: true
-    });
 
-    /*
-    // Try to restore map center and zoom from the local storage
-    if (!mapHelpers.restoreMapProperties()) {
-    // Or center map on user position and set a default zoom
-    mapHelpers.setCenterOnPosition();
-    mapHelpers.map.getView().setZoom(12);
-    // mapHelpers.storeMapChanges();
-    */
-
-    // You must call the updateSize() function
-    // when you change the map container size "manually"
-    // mapHelpers.updateSize();
-
-    openlayersHelpers.initLayerInputsBootstrapModal('#layer_settings_modal');
 
     return {
         map: map

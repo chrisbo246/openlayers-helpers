@@ -7,7 +7,9 @@
     "OpenLayers": "^3.16.0",
     "jquery": "2.2.3",
     "webapp-helpers": "chrisbo246/webapp-helpers",
-    "ol3-layerswitcher": "^1.1.0"
+    "ol3-layerswitcher": "^1.1.0",
+    "parsleyjs": "^2.3.15",
+    "basil.js": "^0.4.4"
   },
   "overrides": {
     "bootstrap-sass": {
