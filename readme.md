@@ -2,7 +2,7 @@
 
 [Demo](http://chrisbo246.github.io/openlayers-helpers/)
 
-JQuery helpers and styles overrides for quick OL3 maps integration.
+JS helpers and styles overrides for quick OL3 maps integration.
 
 ![screenshot](screenshot.png)
 
