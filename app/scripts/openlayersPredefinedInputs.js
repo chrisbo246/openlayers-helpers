@@ -9,7 +9,7 @@
 * @return {Object} Public functions / variables
 */
 /*eslint-disable no-unused-vars*/
-var openlayersPredefinedInputs = (function (mod) {
+var openlayersPredefinedInputs = (function (mod, $, window, document) {
     /*eslint-enable no-unused-vars*/
     'use strict';
 
@@ -239,7 +239,7 @@ var openlayersPredefinedInputs = (function (mod) {
     * @param {string} name - Predefined input (variable name)
     * @return {Object} OL3 layer
     */
-    var getPredefinedInput = function (name, selector) {
+    var get = function (name, selector) {
 
         //if (!openlayersPredefinedInputs || !openlayersPredefinedInputs[name]) {
         if (typeof inputs[name] !== 'function') {
@@ -255,8 +255,8 @@ var openlayersPredefinedInputs = (function (mod) {
     };
 
     return $.extend(mod, {
-        inputs: inputs,
-        getPredefinedInput: getPredefinedInput
+        predefinedInputs: inputs,
+        getPredefinedInput: get
     });
 
-})(openlayerHelpers || {});
+})(openlayersHelpers || {}, window.jQuery, window, document);

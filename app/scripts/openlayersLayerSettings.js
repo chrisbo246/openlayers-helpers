@@ -1,44 +1,89 @@
 /*eslint-env browser, jquery */
 /*global ol */
 /**
-* OL3 input helpers
-* @module
+* Edit layer settings via a bootstrap modal
+* @see {@link http://openlayers.org/en/v3.12.1/apidoc/}
+* @class
 * @external $
 * @external ol
 * @return {Object} Public functions / variables
 */
+
+ol.control.LayerSwitcher.prototype.renderLayer_ = function(lyr, idx) {
+
+    var this_ = this;
+
+    var li = document.createElement('li');
+
+    var lyrTitle = lyr.get('title');
+    var lyrId = lyr.get('title').replace(/\s+/g, '-') + '_' + idx;
+
+    var label = document.createElement('label');
+
+    if (lyr.getLayers) {
+
+        li.className = 'group';
+        label.innerHTML = lyrTitle;
+        li.appendChild(label);
+        var ul = document.createElement('ul');
+        li.appendChild(ul);
+
+        this.renderLayers_(lyr, ul);
+
+    } else {
+
+        li.className = 'layer';
+        var input = document.createElement('input');
+        if (lyr.get('type') === 'base') {
+            input.type = 'radio';
+            input.name = 'base';
+        } else {
+            input.type = 'checkbox';
+        }
+        input.id = lyrId;
+        input.checked = lyr.get('visible');
+        input.onchange = function(e) {
+            this_.setVisible_(lyr, e.target.checked);
+        };
+        li.appendChild(input);
+
+        var settingslink = document.createElement('a');
+        //var text = document.createTextNode('');
+        //settingslink.appendChild(text);
+        settingslink.href = '#layer-settings-modal';
+        //settingslink.setAttribute('data-target', '#layer-settings-modal');
+        settingslink.setAttribute('data-toggle', 'modal');
+        settingslink.setAttribute('data-layer-name', lyr.get('name'));
+        //settingslink.className  = 'btn-link glyphicon glyphicon-cog';
+        settingslink.className  = 'layer-settings-toggler';
+        li.appendChild(settingslink);
+
+        label.htmlFor = lyrId;
+        label.innerHTML = lyrTitle;
+        li.appendChild(label);
+
+    }
+
+    return li;
+
+};
+
 /*eslint-disable no-unused-vars*/
-var openlayersInputHelpers = (function (mod) {
+var openlayersLayerSettings = (function (mod, $, window, document) {
     /*eslint-enable no-unused-vars*/
     'use strict';
 
-    var defaults = {
-        formSelector: '#layer_settings_form',
-        formGroupSelector: '.form-group'
+    var settings = {
+        mapSelector: '.map',
+        formSelector: '#layer-settings-form',
+        formGroupSelector: '.form-group',
+        modalSelector: '#layer-settings-modal'
     };
-
-    var settings = defaults;
 
     var selectedLayer;
 
-    var olLayerTypes = ['Base', 'Group', 'Heatmap', 'Image', 'Layer', 'Tile', 'Vector', 'VectorTile'];
 
-    var olSourceTypes = ['BingMaps', 'CartoDB', 'Cluster',
-    'Image', 'ImageCanvas', 'ImageMapGuide', 'ImageStatic', 'ImageVector',
-    'ImageWMS', 'MapQuest', 'OSM', 'Raster', 'Source', 'Stamen', 'Tile',
-    'TileArcGISRest', 'TileDebug', 'TileImage', 'TileJSON', 'TileUTFGrid',
-    'TileWMS', 'Vector', 'VectorTile', 'WMTS', 'XYZ', 'Zoomify'];
-    // 'ImageArcGISRest', 'ImageEvent', 'RasterEvent', 'TileEvent', 'VectorEvent', 'UrlTile',
-
-    var olFormatTypes = ['GMLBase', 'JSONFeature', 'TextFeature',
-    'XML', 'XMLFeature', 'EsriJSON', 'Feature', 'GeoJSON', 'GML', 'GML2', 'GML3', 'GPX',
-    'IGC', 'KML', 'MVT', 'OSMXML', 'Polyline', 'TopoJSON', 'WFS', 'WKT',
-    'WMSCapabilities', 'WMSGetFeatureInfo', 'WMTSCapabilities'];
-
-    var olStyleTypes = ['AtlasManager', 'Circle', 'Fill', 'Icon', 'Image', 'RegularShape',
-    'Stroke', 'Style', 'Text'];
-
-    var olSourceGetters = {'revision': 'getRevision', 'state': 'getState', 'urls': 'getUrls', 'url': 'getUrl'};
+//    var olSourceGetters = {'revision': 'getRevision', 'state': 'getState', 'urls': 'getUrls', 'url': 'getUrl'};
     //'attributions': 'getAttributions', 'logo': 'getLogo', 'projection': 'getProjection',
     //'tileGrid': 'getTileGrid', 'tileLoadFunction': 'getTileLoadFunction', 'tileUrlFunction': 'getTileUrlFunction'
     //var olSourceSetters = {'revision': 'setRevision', 'state': 'setState', 'urls': 'setUrls', 'url': 'setUrl'};
@@ -73,7 +118,7 @@ var openlayersInputHelpers = (function (mod) {
             // Update layer properties
             if ($input.is('[data-ol-layer][data-ol-property]')) {
                 key = $input.data('ol-property');
-                value = webappHelpers.getInputValue($input);
+                value = mod.getInputValue($input);
                 if (key && value !== null) {
                     selectedLayer.set(key, value);
                 }
@@ -81,14 +126,14 @@ var openlayersInputHelpers = (function (mod) {
 
             // Update source urls
             if ($input.is('[data-ol-source][data-ol-property="urls"]')) {
-                value = webappHelpers.getInputValue($input);
+                value = mod.getInputValue($input);
                 value = value.split('\n');
                 mod.updateSourceUrl(selectedLayer, value);
             }
 
             // Update source features
             if ($input.is('[data-ol-source="Vector"][data-ol-format="GPX"]')) {
-                value = webappHelpers.getInputValue($input);
+                value = mod.getInputValue($input);
                 mod.loadFileFeatures(selectedLayer, value, {
                     dataProjection: 'EPSG:4326',
                     featureProjection: 'EPSG:3857'
@@ -99,14 +144,16 @@ var openlayersInputHelpers = (function (mod) {
             // Update layer style
             if ($input.is('[data-ol-style][data-ol-property]')) {
                 key = $input.data('ol-property');
-                value = webappHelpers.getInputValue($input);
+                value = mod.getInputValue($input);
                 type = $input.data('ol-style');
                 style = selectedLayer.getStyle();
                 if (olStyleTypeGetters[type] && typeof style[olStyleTypeGetters[type]]) {
-                    style = style[olStyleTypeGetters[type]]();
-                    if (olStylePropertySetters[key] && typeof style[olStylePropertySetters[key]]) {
-                        style[olStylePropertySetters[key]](value);
-                    }
+                    source.getKeys().forEach(function (key2) {
+                        style = style[olStyleTypeGetters[type]]();
+                        if (olStylePropertySetters[key] && typeof style[olStylePropertySetters[key]]) {
+                            style[olStylePropertySetters[key]](value);
+                        }
+                    });
                 }
             }
 
@@ -127,7 +174,7 @@ var openlayersInputHelpers = (function (mod) {
     */
     var initLayerInputs = function (layer) {
 
-        var $input, $groups, key, value;
+        var $input, $groups, key, value, attributes;
 
         var $form = $(settings.formSelector);
         var $formGroups = $form.find(settings.formGroupSelector);
@@ -139,14 +186,14 @@ var openlayersInputHelpers = (function (mod) {
         $formGroups.hide();
 
         // Get layer types
-        var layerTypes = webappHelpers.getInstancesOf(layer, ol.layer, olLayerTypes);
-        console.log('Layer types', layerTypes);
+        var layerTypes = mod.getInstanceTypes(layer, ol.layer);
+        //console.log('Layer types', layerTypes);
 
         // Get layer properties
         var layerKeys = layer.getKeys();
-        console.log('Layer keys', layerKeys);
+        //console.log('Layer keys', layerKeys);
         var layerProperties = layer.getProperties(layer);
-        console.log('Layer properties', layerProperties);
+        //console.log('Layer properties', layerProperties);
         if (typeof layer.getSource === 'function') {
             var source = layer.getSource();
         }
@@ -169,14 +216,14 @@ var openlayersInputHelpers = (function (mod) {
         if (source) {
 
             // Get source types
-            var sourceTypes = webappHelpers.getInstancesOf(source, ol.source, olSourceTypes);
-            console.log('Layer source types', sourceTypes);
+            var sourceTypes = mod.getInstanceTypes(source, ol.source);
+            //console.log('Layer source types', sourceTypes);
 
             // Get source properties
             var sourceKeys = source.getKeys();
-            console.log('Layer source keys', sourceKeys);
+            //console.log('Layer source keys', sourceKeys);
             var sourceProperties = source.getProperties(layer);
-            console.log('Layer source properties', sourceProperties);
+            //console.log('Layer source properties', sourceProperties);
             //if (typeof source.getUrls === 'function') {
             //    var sourceUrls = source.getUrls(layer);
             //    console.log('Source URLs', sourceUrls);
@@ -186,13 +233,16 @@ var openlayersInputHelpers = (function (mod) {
             }
 
             var sourceExtraProperties = {};
-            $.each(olSourceGetters, function (key2, getter2) {
-                if (typeof source[getter2] === 'function') {
-                    value = source[getter2]();
+
+            //$.each(olSourceGetters, function (key2, getter2) {
+            source.getKeys().forEach(function (key2) {
+                //if (typeof source[getter2] === 'function') {
+                    //value = source[getter2]();
+                    value = source.get(key2);
                     if (value && !sourceProperties[key2]) {
                         sourceExtraProperties[key2] = value;
                     }
-                }
+                //}
             });
             console.log('Source extra properties', sourceExtraProperties);
 
@@ -218,7 +268,7 @@ var openlayersInputHelpers = (function (mod) {
             if (format) {
 
                 // Get format types
-                var formatTypes = webappHelpers.getInstancesOf(format, ol.format, olFormatTypes);
+                var formatTypes = mod.getInstanceTypes(format, ol.format);
                 console.log('Layer format types', formatTypes);
 
                 // Unhide filtered form groups
@@ -238,19 +288,22 @@ var openlayersInputHelpers = (function (mod) {
 
         if (style) {
 
-            var styleTypes = webappHelpers.getInstancesOf(style, ol.style, olStyleTypes);
+            var styleTypes = mod.getInstanceTypes(style, ol.style);
             console.log('Layer style types', styleTypes);
 
             var styleProperties = {};
 
             $.each(olStyleTypeGetters, function (key2, getter2) {
-                if (typeof style[getter2] === 'function') {
+            //style.getKeys().forEach(function (key2) {
+
+                //if (typeof style[getter2] === 'function') {
 
                     styleProperties[key2] = {};
                     value = style[getter2]();
+                    //value = style.get(key2);
 
                     if (value) {
-                        styleTypes = webappHelpers.getInstancesOf(value, ol.style, olStyleTypes);
+                        styleTypes = mod.getInstanceTypes(value, ol.style);
 
                         // If property is a child style
                         if (styleTypes) {
@@ -264,8 +317,10 @@ var openlayersInputHelpers = (function (mod) {
                                 $groups = $formGroups.has('[data-ol-style="' + type + '"]');
 
                                 $.each(olStylePropertyGetters, function (key3, getter3) {
+                                //styleProperties.getKeys().forEach(function (key3) {
                                     if (typeof value[getter3] === 'function') {
                                         value = value[getter3]();
+                                        //value = value.get(key3);
                                         //console.log(key2 + ' ' + key3 + '(' + (typeof value) + ')', value);
                                         styleProperties[key2][key3] = value;
                                         $groups.has('[data-ol-property="' + key3 + '"]').show()
@@ -281,7 +336,7 @@ var openlayersInputHelpers = (function (mod) {
                         }
                     }
 
-                }
+                //}
             });
             console.log('Layer style properties', styleProperties);
 
@@ -294,7 +349,12 @@ var openlayersInputHelpers = (function (mod) {
                 key = $input.data('ol-property');
                 if (layerProperties[key] !== null) {
                     value = layerProperties[key];
-                    webappHelpers.setInputValue($input, value);
+                    if (['visible', 'opacity'].indexOf(key) !== -1 && layerProperties.type === 'base') {
+                        attributes = {disabled: 'disabled'};
+                    } else {
+                        attributes = {};
+                    }
+                    mod.setInputValue($input, value, attributes);
                     console.log('Layer property ' + key + ' populated', value);
                 }
             });
@@ -306,7 +366,13 @@ var openlayersInputHelpers = (function (mod) {
                 key = $input.data('ol-property');
                 if (sourceProperties[key] !== null) {
                     value = sourceProperties[key];
-                    webappHelpers.setInputValue($input, value);
+                    if (['url', 'urls'].indexOf(key) !== -1) {
+                        //attributes = {disabled: 'disabled'};
+                        attributes = {};
+                    } else {
+                        attributes = {};
+                    }
+                    mod.setInputValue($input, value, attributes);
                     console.log('Source property ' + key + ' populated', value);
                 }
             });
@@ -317,7 +383,7 @@ var openlayersInputHelpers = (function (mod) {
                 key = $input.data('ol-property');
                 if (sourceExtraProperties[key] !== null) {
                     value = sourceExtraProperties[key];
-                    webappHelpers.setInputValue($input, value);
+                    mod.setInputValue($input, value);
                     console.log('Source property ' + key + ' populated', value);
                 }
             });
@@ -338,7 +404,7 @@ var openlayersInputHelpers = (function (mod) {
                 if (styleType && key && styleProperties[styleType] && styleProperties[styleType][key] !== null) {
                     value = styleProperties[styleType][key];
                     console.log(styleType + ' ' + key + ' (' + (typeof value) + ')', value);
-                    webappHelpers.setInputValue($input, value);
+                    mod.setInputValue($input, value);
                 }
             });
         }
@@ -371,7 +437,7 @@ var openlayersInputHelpers = (function (mod) {
                 // hide unwanted field groups
                 // validate form and update layer values
                 initLayerInputs(settings.selectedLayer);
-                //mapLayersModule.initSettingsForm(selectedLayer, '#layer_settings_form', '.form-group, fieldset');
+                //mapLayersModule.initSettingsForm(selectedLayer, '#layer-settings-form', '.form-group, fieldset');
 
                 // Change modal title
                 var title = selectedLayer.get('title');
@@ -384,9 +450,83 @@ var openlayersInputHelpers = (function (mod) {
 
 
 
-    return $.extend(mod, {
-        selectedLayer: selectedLayer,
-        initLayerInputs: initLayerInputs
+    var init = function (map, options) {
+
+        $.extend(settings, options);
+
+        var $map = $(settings.mapSelector);
+        var $form = $(settings.formSelector);
+        var $modal = $(settings.modalSelector);
+
+        // Get the layerSwitcher instance
+        var layerSwitcher = mod.getControlInstanceOf(map, 'LayerSwitcher');
+
+        //layerSwitcher.renderPanel = function() {
+        //    console.log('renderPanel');
+        //    // Call the original renderPanel function passing the instance as `this`
+        //    ol.control.LayerSwitcher.prototype.renderPanel.call(layerSwitcher);
+        //};
+
+        // Force the Bootstrap modal API to initialize the layerswitcher links
+        $map.find('.layer-switcher').on('click', 'a[data-toggle="modal"]', function (e) {
+            e.preventDefault();
+            $(this).trigger('click.bs.modal.data-api');
+        });
+
+        // Populate the layer inputs when the modal show up
+        $modal.on('show.bs.modal', function (e) {
+            var $modal = $(this);
+            var $button = $(e.relatedTarget);
+
+            var selectedLayerId = $button.siblings('input').first().attr('id');
+            var selectedLayerName = $button.data('layerName');
+            console.log('Selected layer ID', selectedLayerId);
+
+            ol.control.LayerSwitcher.forEachRecursive(map, function (layer, idx, a) {
+                var title = layer.get('title');
+                if (title) {
+                    var layerId = title.replace(/\s+/g, '-') + '_' + idx;
+                }
+                var layerName = layer.get('name');
+                console.log('Layer ID', layerId);
+                if ((layerName && selectedLayerName && layerName === selectedLayerName)
+                || (layerId && selectedLayerId && layerId === selectedLayerId)) {
+                    // Change modal title
+                    $modal.find('.modal-title').html(title);
+                    // Display inputs according to layer properties
+                    initLayerInputs(layer);
+                }
+            });
+
+            //if (typeof layerVarName !== 'undefined') {
+            /*eslint-disable no-eval*/
+            //    var selectedLayer = eval(layerVarName);
+            /*eslint-enable no-eval*/
+            //    if (selectedLayer) {
+            //        initLayerInputs(selectedLayer);
+            //        var title = selectedLayer.get('title');
+            //        $modal.find('.modal-title').html(title);
+            //    }
+            //}
+
+        });
+
+        // Update map overlay when user click ok
+        $form.on('submit', function (e) {
+            e.preventDefault();
+            $modal.modal('hide');
+        });
+
+    };
+
+
+
+    $(function () {
     });
 
-})(openlayersHelpers || {});
+
+    return {
+        init: init
+    };
+
+})(openlayersHelpers || {}, window.jQuery, window, document);

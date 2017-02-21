@@ -1,0 +1,17 @@
+
+/* Attribution height */
+.ol-attribution ul {
+    line-height: normal;
+}
+.ol-attribution.ol-collapsible ul {
+    margin: 0 ($ol-btn-size + $ol-btn-margin-horizontal) 0 0;
+}
+.ol-attribution.ol-collapsible button {
+    margin: 0 0 0 -($ol-btn-size + $ol-btn-margin-horizontal);
+}
+.ol-attribution.ol-uncollapsible {
+    height: inherit;
+}
+.ol-attribution.ol-uncollapsible ul {
+    line-height: normal;
+}

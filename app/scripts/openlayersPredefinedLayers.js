@@ -8,14 +8,17 @@
 * @return {Object} Public functions / variables
 */
 /*eslint-disable no-unused-vars*/
-var openlayersPredefinedLayers = (function (mod) {
+var openlayersPredefinedLayers = (function (mod, $, window, document) {
     /*eslint-enable no-unused-vars*/
     'use strict';
 
-    var settings = {
-        bingMapsKey: 'Ak-dzM4wZjSqTlzveKz5u0d4IQ4bRzVI309GxmkgSVr1ewS6iPSrOvOKhA-CJlm3',
+    var settings = $.extend({
+        bingMapsKey: '', // https://msdn.microsoft.com/fr-fr/library/ff428642.aspx
+        mapzenKey: '', // https://mapzen.com/developers',
+        thunderforestKey: '', //http://thunderforest.com/pricing/
+        mapquestKey: '', // https://developer.mapquest.com/plan_purchase/steps/business_edition/business_edition_free/register
         dataPath: 'data/'
-    };
+    }, window.openlayersPredefinedLayersSettings);
 
     var protocol = (window.location.protocol === 'https:') ? 'https:' : 'http:';
 
@@ -120,49 +123,14 @@ var openlayersPredefinedLayers = (function (mod) {
 
 
 
-    // Styles __________________________________________________________________
-    /**
-    * Timezones layer style
-    * @see http://openlayers.org/en/v3.4.0/examples/kml-timezones.html
-    * @private
-    */
-    var timezonesStyle = function (feature) { // feature, resolution
-        var offset = 0;
-        var name = feature.get('name'); // e.g. GMT -08:30
-        var match = name.match(/([\-+]\d{2}):(\d{2})$/);
-        if (match) {
-            var hours = parseInt(match[1], 10);
-            var minutes = parseInt(match[2], 10);
-            offset = 60 * hours + minutes;
-        }
-        var date = new Date();
-        var local = new Date(date.getTime() +
-        (date.getTimezoneOffset() + offset) * 60000);
-        // offset from local noon (in hours)
-        var delta = Math.abs(12 - local.getHours() + (local.getMinutes() / 60));
-        if (delta > 12) {
-            delta = 24 - delta;
-        }
-        var opacity = 0.75 * (1 - delta / 12);
-        return [new ol.style.Style({
-            fill: new ol.style.Fill({
-                color: [0x55, 0x55, 0x55, opacity]
-                //color: [0xff, 0xff, 0x33, opacity]
-            }),
-            stroke: new ol.style.Stroke({
-                color: '#ffffff'
-            })
-        })];
-    };
-
-
 
     // Base layers _____________________________________________________________
 
     layers.openStreetMap = function () {
         return new ol.layer.Tile({
             name: 'openStreetMap',
-            title: 'Road Map<small> (by <a href="https://www.openstreetmap.org">OpenStreetMap</a>)</small>', // (offline)
+            title: 'Road Map (OpenStreetMap)',
+            titleHtml: 'Road Map<small> (by <a href="https://www.openstreetmap.org">OpenStreetMap</a>)</small>', // (offline)
             visible: true,
             type: 'base',
             source: new ol.source.OSM({
@@ -178,7 +146,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.openSeaMap = function () {
         return new ol.layer.Tile({
             name: 'openSeaMap',
-            title: 'Shipping lanes<small> (by <a href="http://www.openseamap.org">OpenSeaMap</a>)</small>',
+            title: 'Shipping lanes (OpenSeaMap)',
+            titleHtml: 'Shipping lanes<small> (by <a href="http://www.openseamap.org">OpenSeaMap</a>)</small>',
             type: 'base',
             source: new ol.source.OSM({
                 attributions: [
@@ -200,7 +169,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.openStreetMapHumanitarian = function () {
         return new ol.layer.Tile({
             name: 'openStreetMapHumanitarian',
-            title: 'Humanitarian <small>(by <a href="https://www.openstreetmap.org">OpenStreetMap</a>)</small>',
+            title: 'Humanitarian  (OpenStreetMap)',
+            titleHtml: 'Humanitarian <small>(by <a href="https://www.openstreetmap.org">OpenStreetMap</a>)</small>',
             type: 'base',
             source: new ol.source.OSM({
                 attributions: [
@@ -213,35 +183,36 @@ var openlayersPredefinedLayers = (function (mod) {
                 url: protocol + '//tile-{a-c}.openstreetmap.fr/hot/{z}/{x}/{y}.png'
             })
         });
-    };
+    }
 
-    layers.mapquestOSM = function () {
-        return new ol.layer.Tile({
-            name: 'mapquestOSM',
-            title: 'Road map<small> (by <a href="http://open.mapquest.com">MapQuest</a>)</small>',
-            type: 'base',
-            source: new ol.source.MapQuest({
-                layer: 'osm'
-            })
-        });
-    };
+    //layers.mapquestOSM = function () {
+    //    return new ol.layer.Tile({
+    //        name: 'mapquestOSM',
+    //        title: 'Road map<small> (by <a href="http://open.mapquest.com">MapQuest</a>)</small>',
+    //        type: 'base',
+    //        source: new ol.source.MapQuest({
+    //            layer: 'osm'
+    //        })
+    //    });
+    //};
 
-    layers.mapquestSat = function () {
-        return new ol.layer.Tile({
-            name: 'mapquestSat',
-            title: 'Aerial view<small> (by <a href="http://open.mapquest.com">MapQuest</a>)</small>',
-            type: 'base',
-            source: new ol.source.MapQuest({
-                layer: 'sat'
-            })
-        });
-    };
+    //layers.mapquestSat = function () {
+    //    return new ol.layer.Tile({
+    //        name: 'mapquestSat',
+    //        title: 'Aerial view<small> (by <a href="http://open.mapquest.com">MapQuest</a>)</small>',
+    //        type: 'base',
+    //        source: new ol.source.MapQuest({
+    //            layer: 'sat'
+    //        })
+    //    });
+    //};
 
     // http://thunderforest.com/maps/opencyclemap/
     layers.openCycleMap = function () {
         return new ol.layer.Tile({
             name: 'openCycleMap',
-            title: 'Cycling roads<small> (by <a href="http://www.opencyclemap.org">OpenCycleMap</a>)</small>',
+            title: 'Cycling roads (OpenCycleMap)',
+            titleHtml: 'Cycling roads<small> (by <a href="http://www.opencyclemap.org">OpenCycleMap</a>)</small>',
             type: 'base',
             source: new ol.source.OSM({
                 attributions: [
@@ -251,7 +222,7 @@ var openlayersPredefinedLayers = (function (mod) {
                     }),
                     ol.source.OSM.ATTRIBUTION
                 ],
-                url: 'http://{a-c}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png'
+                url: 'http://{a-c}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png?apikey=' + settings.thunderforestKey
             })
         });
     };
@@ -260,7 +231,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.thunderforestTransport = function () {
         return new ol.layer.Tile({
             name: 'thunderforestTransport',
-            title: 'Transports<small> (by <a href="http://www.thunderforest.com">ThunderForest</a>)</small>',
+            title: 'Transports (ThunderForest)',
+            titleHtml: 'Transports<small> (by <a href="http://www.thunderforest.com">ThunderForest</a>)</small>',
             type: 'base',
             source: new ol.source.OSM({
                 attributions: [
@@ -270,7 +242,7 @@ var openlayersPredefinedLayers = (function (mod) {
                     }),
                     ol.source.OSM.ATTRIBUTION
                 ],
-                url: 'http://{a-c}.tile.thunderforest.com/transport/{z}/{x}/{y}.png'
+                url: 'http://{a-c}.tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=' + settings.thunderforestKey
             })
         });
     };
@@ -279,7 +251,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.thunderforestTransportDark = function () {
         return new ol.layer.Tile({
             name: 'thunderforestTransportDark',
-            title: 'Transport dark<small> (by <a href="http://www.thunderforest.com">ThunderForest</a>)</small>',
+            title: 'Transport dark (ThunderForest)',
+            titleHtml: 'Transport dark<small> (by <a href="http://www.thunderforest.com">ThunderForest</a>)</small>',
             type: 'base',
             source: new ol.source.OSM({
                 attributions: [
@@ -289,7 +262,7 @@ var openlayersPredefinedLayers = (function (mod) {
                     }),
                     ol.source.OSM.ATTRIBUTION
                 ],
-                url: 'https://{a-c}.tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png'
+                url: 'https://{a-c}.tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png?apikey=' + settings.thunderforestKey
             })
         });
     };
@@ -298,7 +271,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.thunderforestLandscape = function () {
         return new ol.layer.Tile({
             name: 'thunderforestLandscape',
-            title: 'Landscape<small> (by <a href="http://www.thunderforest.com">ThunderForest</a>)</small>',
+            title: 'Landscape (ThunderForest)',
+            titleHtml: 'Landscape<small> (by <a href="http://www.thunderforest.com">ThunderForest</a>)</small>',
             type: 'base',
             source: new ol.source.OSM({
                 attributions: [
@@ -308,7 +282,7 @@ var openlayersPredefinedLayers = (function (mod) {
                     }),
                     ol.source.OSM.ATTRIBUTION
                 ],
-                url: 'https://{a-c}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png'
+                url: 'https://{a-c}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=' + settings.thunderforestKey
             })
         });
     };
@@ -317,7 +291,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.thunderforestOutdoor = function () {
         return new ol.layer.Tile({
             name: 'thunderforestOutdoor',
-            title: 'Outdoor activities<small> (by <a href="http://www.thunderforest.com">ThunderForest</a>)</small>',
+            title: 'Outdoor activities (ThunderForest)',
+            titleHtml: 'Outdoor activities<small> (by <a href="http://www.thunderforest.com">ThunderForest</a>)</small>',
             type: 'base',
             source: new ol.source.OSM({
                 attributions: [
@@ -327,7 +302,7 @@ var openlayersPredefinedLayers = (function (mod) {
                     }),
                     ol.source.OSM.ATTRIBUTION
                 ],
-                url: 'https://{a-c}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png'
+                url: 'https://{a-c}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=' + settings.thunderforestKey
             })
         });
     };
@@ -335,7 +310,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.arcgis = function () {
         return new ol.layer.Tile({
             name: 'arcgis',
-            title: 'Terrain<small> (by <a href="https://services.arcgisonline.com">ArcGIS</a>)</small>',
+            title: 'Terrain (ArcGIS)',
+            titleHtml: 'Terrain<small> (by <a href="https://services.arcgisonline.com">ArcGIS</a>)</small>',
             type: 'base',
             source: new ol.source.XYZ({
                 crossOrigin: 'anonymous', // Important
@@ -354,7 +330,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.arcgisRestHighwayUSA = function () {
         return new ol.layer.Tile({
             name: 'arcgisRestHighwayUSA',
-            title: 'Highway USA<small> (by <a href="https://services.arcgisonline.com">ArcGIS</a>)</small>',
+            title: 'Highway USA (ArcGIS)',
+            titleHtml: 'Highway USA<small> (by <a href="https://services.arcgisonline.com">ArcGIS</a>)</small>',
             type: 'base',
             extent: [-13884991, 2870341, -7455066, 6338219],
             source: new ol.source.TileArcGISRest({
@@ -366,7 +343,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.googleMap = function () {
         return new ol.layer.Tile({
             name: 'googleMap',
-            title: 'Road map<small> (by <a href="https://www.google.com/maps/">Google</a>)</small>',
+            title: 'Road map (Google)',
+            titleHtml: 'Road map<small> (by <a href="https://www.google.com/maps/">Google</a>)</small>',
             type: 'base',
             source: new ol.source.XYZ({
                 crossOrigin: 'anonymous', // Important
@@ -378,7 +356,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.googleTerrain = function () {
         return new ol.layer.Tile({
             name: 'googleTerrain',
-            title: 'Terrain + labels<small> (by <a href="https://www.google.com/maps/">Google</a>)</small>',
+            title: 'Terrain + labels (Google)',
+            titleHtml: 'Terrain + labels<small> (by <a href="https://www.google.com/maps/">Google</a>)</small>',
             type: 'base',
             source: new ol.source.XYZ({
                 crossOrigin: 'anonymous', // Important
@@ -391,7 +370,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.googleSatellite = function () {
         return new ol.layer.Tile({
             name: 'googleSatellite',
-            title: 'Aerial view<small> (by <a href="https://www.google.com/maps/">Google</a>)</small>',
+            title: 'Aerial view (Google)',
+            titleHtml: 'Aerial view<small> (by <a href="https://www.google.com/maps/">Google</a>)</small>',
             type: 'base',
             source: new ol.source.XYZ({
                 crossOrigin: 'anonymous', // Important
@@ -405,7 +385,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.bingRoad = function () {
         return new ol.layer.Tile({
             name: 'bingRoad',
-            title: 'Road map<small> (by <a href="https://www.bing.com/maps/">Bing</a>)</small>',
+            title: 'Road map (Bing)',
+            titleHtml: 'Road map<small> (by <a href="https://www.bing.com/maps/">Bing</a>)</small>',
             type: 'base',
             maxZoom: 19,
             source: new ol.source.BingMaps({
@@ -418,7 +399,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.bingAerial = function () {
         return new ol.layer.Tile({
             name: 'bingAerial',
-            title: 'Aerial view<small> (by <a href="https://www.bing.com/maps/">Bing</a>)</small>',
+            title: 'Aerial view (Bing)',
+            titleHtml: 'Aerial view<small> (by <a href="https://www.bing.com/maps/">Bing</a>)</small>',
             type: 'base',
             maxZoom: 19,
             source: new ol.source.BingMaps({
@@ -431,7 +413,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.bingAerialWithLabels = function () {
         return new ol.layer.Tile({
             name: 'bingAerialWithLabels',
-            title: 'Aerial view with labels<small> (by <a href="https://www.bing.com/maps/">Bing</a>)</small>',
+            title: 'Aerial view with labels (Bing)',
+            titleHtml: 'Aerial view with labels<small> (by <a href="https://www.bing.com/maps/">Bing</a>)</small>',
             type: 'base',
             maxZoom: 19,
             source: new ol.source.BingMaps({
@@ -444,7 +427,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.bingCollinsBart = function () {
         return new ol.layer.Tile({
             name: 'bingCollinsBart',
-            title: 'CollinsBart<small> (by <a href="https://www.bing.com/maps/">Bing</a>)</small>',
+            title: 'CollinsBart (Bing)',
+            titleHtml: 'CollinsBart<small> (by <a href="https://www.bing.com/maps/">Bing</a>)</small>',
             type: 'base',
             maxZoom: 19,
             source: new ol.source.BingMaps({
@@ -457,7 +441,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.bingOrdnanceSurvey = function () {
         return new ol.layer.Tile({
             name: 'bingOrdnanceSurvey',
-            title: 'OrdnanceSurvey<small> (by <a href="https://www.bing.com/maps/">Bing</a>)</small>',
+            title: 'OrdnanceSurvey (Bing)',
+            titleHtml: 'OrdnanceSurvey<small> (by <a href="https://www.bing.com/maps/">Bing</a>)</small>',
             type: 'base',
             maxZoom: 19,
             source: new ol.source.BingMaps({
@@ -473,9 +458,13 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.stamenToner = function () {
         return new ol.layer.Tile({
             name: 'stamenToner',
-            title: 'B&W map<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
+            title: 'B&W map (Stamen)',
+            titleHtml: 'B&W map<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
             type: 'base',
             source: new ol.source.Stamen({
+                attributions: [new ol.Attribution({
+                    html: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+                })],
                 layer: 'toner'
             })
         });
@@ -484,9 +473,13 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.stamenTonerLite = function () {
         return new ol.layer.Tile({
             name: 'stamenTonerLite',
-            title: 'Gray scale map<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
+            title: 'Gray scale map (Stamen)',
+            titleHtml: 'Gray scale map<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
             type: 'base',
             source: new ol.source.Stamen({
+                attributions: [new ol.Attribution({
+                    html: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+                })],
                 layer: 'toner-lite'
             })
         });
@@ -495,9 +488,13 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.stamenTonerBackground = function () {
         return new ol.layer.Tile({
             name: 'stamenTonerBackground',
-            title: 'B&W background<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
+            title: 'B&W background (Stamen)',
+            titleHtml: 'B&W background<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
             type: 'base',
             source: new ol.source.Stamen({
+                attributions: [new ol.Attribution({
+                    html: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+                })],
                 layer: 'toner-background'
             })
         });
@@ -506,9 +503,13 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.stamenWatercolor = function () {
         return new ol.layer.Tile({
             name: 'stamenWatercolor',
-            title: 'Watercolor map<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
+            title: 'Watercolor map (Stamen)',
+            titleHtml: 'Watercolor map<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
             type: 'base',
             source: new ol.source.Stamen({
+                attributions: [new ol.Attribution({
+                    html: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'
+                })],
                 layer: 'watercolor'
             })
         });
@@ -518,21 +519,29 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.stamenTerrain = function () {
         return new ol.layer.Tile({
             name: 'stamenTerrain',
-            title: 'Terrain USA<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
+            title: 'Terrain + labels (Stamen)',
+            titleHtml: 'Terrain + labels <small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
             type: 'base',
             source: new ol.source.Stamen({
+                attributions: [new ol.Attribution({
+                    html: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+                })],
                 layer: 'terrain'
             })
         });
     };
 
-    layers.stamenTerrainWithLabels = function () {
+    layers.stamenTerrainBackground = function () {
         return new ol.layer.Tile({
-            name: 'stamenTerrainLabels',
-            title: 'Terrain + labels USA<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
+            name: 'stamenTerrainBackground',
+            title: 'Terrain (Stamen)',
+            titleHtml: 'Terrain <small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
             type: 'base',
             source: new ol.source.Stamen({
-                layer: 'terrain-labels'
+                attributions: [new ol.Attribution({
+                    html: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+                })],
+                layer: 'terrain-background'
             })
         });
     };
@@ -541,6 +550,18 @@ var openlayersPredefinedLayers = (function (mod) {
         return new ol.layer.Tile({
             name: 'customBaseLayer',
             title: 'Custom',
+            type: 'base',
+            source: new ol.source.XYZ({
+                urls: []
+            })
+        });
+    };
+
+    layers.mapsForFreeRelief = function () {
+        return new ol.layer.Tile({
+            name: 'mapsForFreeRelief',
+            title: 'Relief (maps-for-free.com)',
+            titleHtml: 'Custom',
             type: 'base',
             source: new ol.source.XYZ({
                 urls: []
@@ -563,14 +584,134 @@ var openlayersPredefinedLayers = (function (mod) {
         });
     };
 
+    layers.mapzenVector = function () {
+        return new ol.layer.VectorTile({
+            name: 'mapzenVector',
+            title: 'Vector map  (mapzen.com)',
+            titleHtml: 'Vector map <small> (by <a href="http://www.mapzen.com">mapzen.com</a>)</small>',
+            type: 'base',
+            source: new ol.source.VectorTile({
+                attributions: [new ol.Attribution({
+                    html: '&copy; OpenStreetMap contributors, Who’s On First, Natural Earth, and openstreetmapdata.com'
+                })],
+                format: new ol.format.TopoJSON(),
+                tileGrid: ol.tilegrid.createXYZ({maxZoom: 19}),
+                url: 'https://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.topojson?api_key=' + settings.mapzenKey
+            }),
+            style: openlayersPredefinedStyles.mapzenVectorStyle()
+        })
+    };
 
+    layers.mapzenVectorBuildings = function () {
+        return new ol.layer.VectorTile({
+            name: 'mapzenVectorBuildings',
+            title: 'Vector bildings (mapzen.com)',
+            titleHtml: 'Vector bildings<small> (by <a href="http://www.mapzen.com">mapzen.com</a>)</small>',
+            type: 'base',
+            //maxResolution: 76.43702828517625, //Z11
+            source: new ol.source.VectorTile({
+                attributions: [new ol.Attribution({
+                    html: '&copy; OpenStreetMap contributors, Who’s On First, Natural Earth, and openstreetmapdata.com'
+                })],
+                format: new ol.format.TopoJSON(),
+                url: 'https://tile.mapzen.com/mapzen/vector/v1/buildings/{z}/{x}/{y}.topojson?api_key=' + settings.mapzenKey
+            }),
+            style: openlayersPredefinedStyles.mapzenVectorStyle()
+            /*style: function(f, resolution) {
+                return (resolution < 10) ? buildingStyle : null;
+            }*/
+        });
+    };
+
+    layers.mapzenVectorWater = function () {
+        return new ol.layer.VectorTile({
+            name: 'mapzenVectorWater',
+            title: 'Vector water (mapzen.com)',
+            titleHtml: 'Vector water<small> (by <a href="http://www.mapzen.com">mapzen.com</a>)</small>',
+            type: 'base',
+            source: new ol.source.VectorTile({
+                attributions: [new ol.Attribution({
+                    html: '&copy; OpenStreetMap contributors, Who’s On First, Natural Earth, and openstreetmapdata.com'
+                })],
+                format: new ol.format.TopoJSON(),
+                tileGrid: ol.tilegrid.createXYZ({maxZoom: 19}),
+                url: 'https://tile.mapzen.com/mapzen/vector/v1/water/{z}/{x}/{y}.topojson?api_key=' + settings.mapzenKey
+            }),
+            style: openlayersPredefinedStyles.mapzenVectorStyle()
+            /*style: new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: '#9db9e8'
+                })
+            })*/
+        })
+    };
+
+    layers.mapzenVectorPois = function () {
+        return new ol.layer.VectorTile({
+            name: 'mapzenVectorPois',
+            title: 'Vector POIs (mapzen.com)',
+            titleHtml: 'Vector POIs<small> (by <a href="http://www.mapzen.com">mapzen.com</a>)</small>',
+            type: 'base',
+            source: new ol.source.VectorTile({
+                attributions: [new ol.Attribution({
+                    html: '&copy; OpenStreetMap contributors, Who’s On First, Natural Earth, and openstreetmapdata.com'
+                })],
+                format: new ol.format.TopoJSON(),
+                tileGrid: ol.tilegrid.createXYZ({maxZoom: 19}),
+                url: 'https://tile.mapzen.com/mapzen/vector/v1/pois/{z}/{x}/{y}.topojson?api_key=' + settings.mapzenKey
+            }),
+            style: openlayersPredefinedStyles.mapzenVectorStyle()
+            /*style: new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: '#9db9e8'
+                })
+            })*/
+        })
+    };
+
+    // Mapzen Terrain
+    // https://mapzen.com/documentation/terrain-tiles/use-service/
+    layers.mapzenTerrain = function (variant) {
+        //var variants = [normal, terrarium, geotiff, skadi];
+        //if ($.inArray(variant, variants) === 1) {
+        //    variant = variant[0];
+        //}
+        return new ol.layer.VectorTile({
+            name: 'mapzenTerrain',
+            title: 'Terrain  (mapzen.com)',
+            titleHtml: 'Terrain <small> (by <a href="http://www.mapzen.com">mapzen.com</a>)</small>',
+            type: 'base',
+            source: new ol.source.XYZ({
+                attributions: [new ol.Attribution({
+                    html: '&copy; OpenStreetMap contributors, Who’s On First, Natural Earth, and openstreetmapdata.com'
+                })],
+                url: 'https://tile.mapzen.com/mapzen/terrain/v1/normal/{z}/{x}/{y}.png?api_key=' + settings.mapzenKey
+            })
+        })
+    };
+
+    layers.mapzenTerrainTerrarium = function (variant) {
+        return new ol.layer.VectorTile({
+            name: 'mapzenTerrainTerrarium',
+            title: 'Terrarium  (mapzen.com)',
+            titleHtml: 'Terrarium <small> (by <a href="http://www.mapzen.com">mapzen.com</a>)</small>',
+            type: 'base',
+            source: new ol.source.XYZ({
+                attributions: [new ol.Attribution({
+                    html: '&copy; OpenStreetMap contributors, Who’s On First, Natural Earth, and openstreetmapdata.com'
+                })],
+                url: 'https://tile.mapzen.com/mapzen/terrain/v1/terrarium/{z}/{x}/{y}.png?api_key=' + settings.mapzenKey
+            })
+        })
+    };
 
     // Overlays ________________________________________________________________
 
     layers.googleBike = function () {
         return new ol.layer.Tile({
             name: 'googleBike',
-            title: 'Cycling roads<small> (by <a href="https://www.google.com/maps/">Google</a>)</small>',
+            title: 'Cycling roads (Google)',
+            titleHtml: 'Cycling roads<small> (by <a href="https://www.google.com/maps/">Google</a>)</small>',
             visible: true,
             source: new ol.source.XYZ({
                 crossOrigin: 'anonymous',
@@ -583,7 +724,9 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.googleHybrid = function () {
         return new ol.layer.Tile({
             name: 'googleHybrid',
-            title: 'Roads + labels<small> (by <a href="https://www.google.com/maps/">Google</a>)</small>',
+            title: 'Roads + labels (Google)',
+            titleHtml: 'Roads + labels<small> (by <a href="https://www.google.com/maps/">Google</a>)</small>',
+            zIndex: 99,
             visible: true,
             source: new ol.source.XYZ({
                 crossOrigin: 'anonymous',
@@ -592,20 +735,21 @@ var openlayersPredefinedLayers = (function (mod) {
         });
     };
 
-    layers.mapquestHyb = function () {
-        return new ol.layer.Tile({
-            name: 'mapquestHyb',
-            title: 'City names<small> (by <a href="http://open.mapquest.com">MapQuest</a>)</small>',
-            source: new ol.source.MapQuest({
-                layer: 'hyb'
-            })
-        });
-    };
+    //layers.mapquestHyb = function () {
+    //    return new ol.layer.Tile({
+    //        name: 'mapquestHyb',
+    //        title: 'City names<small> (by <a href="http://open.mapquest.com">MapQuest</a>)</small>',
+    //        source: new ol.source.MapQuest({
+    //            layer: 'hyb'
+    //        })
+    //    });
+    //};
 
     layers.lonviaCycling = function () {
         return new ol.layer.Tile({
             name: 'lonviaCycling',
-            title: 'Cycling roads<small> (by <a href="http://www.waymarkedtrails.org">Lonvia</a>)</small>',
+            title: 'Cycling roads (Lonvia)',
+            titleHtml: 'Cycling roads<small> (by <a href="http://www.waymarkedtrails.org">Lonvia</a>)</small>',
             opacity: 0.6,
             source: new ol.source.OSM({
                 attributions: [
@@ -628,7 +772,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.lonviaHiking = function () {
         return new ol.layer.Tile({
             name: 'lonviaHiking',
-            title: 'Hiking paths<small> (by <a href="http://www.waymarkedtrails.org">Lonvia</a>)</small>',
+            title: 'Hiking paths (Lonvia)',
+            titleHtml: 'Hiking paths<small> (by <a href="http://www.waymarkedtrails.org">Lonvia</a>)</small>',
             opacity: 0.6,
             source: new ol.source.OSM({
                 attributions: [
@@ -643,11 +788,45 @@ var openlayersPredefinedLayers = (function (mod) {
         });
     };
 
+    layers.stamenTerrainLabels = function () {
+        return new ol.layer.Tile({
+            name: 'stamenTerrainLabels',
+            title: 'Labels (Stamen)',
+            titleHtml: 'Labels <small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
+            zIndex: 99,
+            source: new ol.source.Stamen({
+                attributions: [new ol.Attribution({
+                    html: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+                })],
+                layer: 'terrain-labels'
+            })
+        });
+    };
+
+    layers.stamenTerrainLines = function () {
+        return new ol.layer.Tile({
+            name: 'stamenTerrainLines',
+            title: 'Roads (Stamen)',
+            titleHtml: 'Roads <small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
+            source: new ol.source.Stamen({
+                attributions: [new ol.Attribution({
+                    html: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+                })],
+                layer: 'terrain-lines'
+            })
+        });
+    };
+
     layers.stamenTonerHybrid = function () {
         return new ol.layer.Tile({
             name: 'stamenTonerHybrid',
-            title: 'B&W roads + labels<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
+            title: 'B&W roads + labels (Stamen)',
+            titleHtml: 'B&W roads + labels<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
+            zIndex: 99,
             source: new ol.source.Stamen({
+                attributions: [new ol.Attribution({
+                    html: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+                })],
                 layer: 'toner-hybrid'
             })
         });
@@ -656,8 +835,13 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.stamenTonerLabels = function () {
         return new ol.layer.Tile({
             name: 'stamenTonerLabels',
-            title: 'B&W labels<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
+            title: 'B&W labels (Stamen)',
+            titleHtml: 'B&W labels<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
+            zIndex: 99,
             source: new ol.source.Stamen({
+                attributions: [new ol.Attribution({
+                    html: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+                })],
                 layer: 'toner-labels'
             })
         });
@@ -666,8 +850,12 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.stamenTonerLines = function () {
         return new ol.layer.Tile({
             name: 'stamenTonerLines',
-            title: 'B&W roads<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
+            title: 'B&W roads (Stamen)',
+            titleHtml: 'B&W roads<small> (by <a href="http://maps.stamen.com">Stamen</a>)</small>',
             source: new ol.source.Stamen({
+                attributions: [new ol.Attribution({
+                    html: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+                })],
                 layer: 'toner-lines'
             })
         });
@@ -677,7 +865,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.mapsForFreeWater = function () {
         return new ol.layer.Tile({
             name: 'mapsForFreeWater',
-            title: 'Water<small> (by <a href="http://www.maps-for-free.com">maps-for-free.com</a>)</small>',
+            title: 'Water (maps-for-free.com)',
+            titleHtml: 'Water<small> (by <a href="http://www.maps-for-free.com">maps-for-free.com</a>)</small>',
             opacity: 0.7,
             source: new ol.source.XYZ({
                 url: 'http://www.maps-for-free.com/layer/water/z{z}/row{y}/{z}_{x}-{y}.gif'
@@ -688,7 +877,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.mapsForFreeAdmin = function () {
         return new ol.layer.Tile({
             name: 'mapsForFreeAdmin',
-            title: 'Admin<small> (by <a href="http://www.maps-for-free.com">maps-for-free.com</a>)</small>',
+            title: 'Admin (maps-for-free.com)',
+            titleHtml: 'Admin<small> (by <a href="http://www.maps-for-free.com">maps-for-free.com</a>)</small>',
             opacity: 0.3,
             source: new ol.source.XYZ({
                 url: 'http://www.maps-for-free.com/layer/admin/z{z}/row{y}/{z}_{x}-{y}.gif'
@@ -700,7 +890,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.uniHeidelbergAsterh = function () {
         return new ol.layer.Tile({
             name: 'uniHeidelbergAsterh',
-            title: 'Hillshade<small> (by <a href="http://korona.geog.uni-heidelberg.de">uni-heidelberg.de</a>)</small>',
+            title: 'Hillshade (uni-heidelberg.de)',
+            titleHtml: 'Hillshade<small> (by <a href="http://korona.geog.uni-heidelberg.de">uni-heidelberg.de</a>)</small>',
             source: new ol.source.XYZ({
                 maxZoom: 18,
                 url: 'http://korona.geog.uni-heidelberg.de/tiles/asterh/x={x}&y={y}&z={z}'
@@ -711,7 +902,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.uniHeidelbergAdminb = function () {
         return new ol.layer.Tile({
             name: 'uniHeidelbergAdminb',
-            title: 'Admin boundaries<small> (by <a href="http://korona.geog.uni-heidelberg.de">uni-heidelberg.de</a>)</small>',
+            title: 'Admin boundaries (uni-heidelberg.de)',
+            titleHtml: 'Admin boundaries<small> (by <a href="http://korona.geog.uni-heidelberg.de">uni-heidelberg.de</a>)</small>',
             opacity: 0.8,
             source: new ol.source.XYZ({
                 url: 'http://korona.geog.uni-heidelberg.de/tiles/adminb/x={x}&y={y}&z={z}'
@@ -722,7 +914,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.uniHeidelbergHybrid = function () {
         return new ol.layer.Tile({
             name: 'uniHeidelbergHybrid',
-            title: 'Hibrid<small> (by <a href="http://korona.geog.uni-heidelberg.de">uni-heidelberg.de</a>)</small>',
+            title: 'Hibrid (uni-heidelberg.de)',
+            titleHtml: 'Hibrid<small> (by <a href="http://korona.geog.uni-heidelberg.de">uni-heidelberg.de</a>)</small>',
             opacity: 0.8,
             source: new ol.source.XYZ({
                 url: 'http://korona.geog.uni-heidelberg.de/tiles/hybrid/x={x}&y={y}&z={z}'
@@ -733,7 +926,8 @@ var openlayersPredefinedLayers = (function (mod) {
     layers.mapboxShadedRelief = function () {
         return new ol.layer.Image({
             name: 'mapboxShadedRelief',
-            title: 'Shaded relief<small> (by <a href="http://www.mapbox.com">Mapbox</a>)</small>',
+            title: 'Shaded relief (Mapbox)',
+            titleHtml: 'Shaded relief<small> (by <a href="http://www.mapbox.com">Mapbox</a>)</small>',
             source: new ol.source.Raster({
                 sources: [
                     new ol.source.XYZ({
@@ -753,7 +947,7 @@ var openlayersPredefinedLayers = (function (mod) {
         return new ol.layer.Vector({
             name: 'timeZones',
             title: 'Time zones',
-            style: timezonesStyle,
+            style: openlayersPredefinedStyles.timezonesStyle,
             minResolution: 4891,
             source: new ol.source.Vector({
                 extractStyles: false,
@@ -786,8 +980,6 @@ var openlayersPredefinedLayers = (function (mod) {
         return new ol.layer.Tile({
             name: 'drawing',
             title: 'My drawings'
-            // ,
-            //    source: new ol.source.MapQuest({layer: 'sat'})
         });
     };
 
@@ -801,38 +993,11 @@ var openlayersPredefinedLayers = (function (mod) {
         });
     };
 
-    // _________________________________________________________________________
 
 
+    //return $.extend(mod, {
+    //    predefinedLayers: layers
+    //});
+    return layers;
 
-    /**
-    * Create a new layer using predefined settings
-    * @public
-    * @param {string} name - Predefined layer (variable name)
-    * @param {Object} [properties] - Layer custom parameters
-    * @return {Object} OL3 layer
-    */
-    var getPredefinedLayer = function (name, properties) {
-
-        //if (!openlayersPredefinedLayers || !openlayersPredefinedLayers[name]) {
-        if (typeof layers[name] !== 'function') {
-            console.warn(name + ' layer definition is not defined');
-            return false;
-        }
-
-        // Define the new layer with a predefined layer
-        //var layer = openlayersPredefinedLayers[name]();
-        var layer = layers[name]();
-
-        return layer;
-
-    };
-
-
-
-    return $.extend(mod, {
-        layers: layers,
-        getPredefinedLayer: getPredefinedLayer
-    });
-
-})(openlayersHelpers || {});
+})(openlayersHelpers || {}, window.jQuery, window, document);

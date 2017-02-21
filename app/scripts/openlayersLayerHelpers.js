@@ -8,12 +8,12 @@
 * @return {Object} Public functions / variables
 */
 /*eslint-disable no-unused-vars*/
-var openlayersLayerHelpers  = (function (mod) {
+var openlayersLayerHelpers  = (function (mod, $, window, document) {
     /*eslint-enable no-unused-vars*/
     'use strict';
 
     var defaults = {
-        debug: false,
+        debug: (document.domain === 'localhost'),
         properties: {
             visible: false
         },
@@ -239,24 +239,94 @@ var openlayersLayerHelpers  = (function (mod) {
 
 
     /**
-    * Apply common tasks on a freshly initialized layer
+    * Check if it's a layer instance
     * @param {Object} layer - OL3 layer
-    * @param {Object} properties - Custom layer properties
+    * @returns {Boolean}
     */
-    var initLayer = function (layer, properties) {
+    var isLayer = function (layer) {
+        var test = false;
+        var classNames = ['Base', 'Group', 'Heatmap', 'Image', 'Layer', 'Tile', 'Vector', 'VectorTile'];
+        $.each(classNames, function (i, v) {
+            if (typeof ol.layer[v] === 'function') {
+                test = layer instanceof ol.layer[v];
+                return !test;
+            }
+        });
+        return test;
+    }
 
-        debugLayer(layer);
+
+
+    /**
+    * Get some predefined layers
+    * @public
+    * @param {Object} predefinedLayers {name: options}
+    * @return {Array} List of predefined layers
+    */
+    var getPredefinedLayers = function (predefinedLayers) {
+
+        var layers = [];
+        $.each(predefinedLayers, function (name, properties) {
+            layers.push(getPredefinedLayer(name, properties));
+        })
+
+        return layers.filter(function (e) { return e });
+
+    };
+
+
+
+    /**
+    * Create a new layer using predefined settings
+    * @public
+    * @param {string} name - Predefined layer (variable name)
+    * @param {Object} [properties] - Layer custom parameters
+    * @return {Object} OL3 layer
+    */
+    var getPredefinedLayer = function (name, properties) {
+
+        //if (!openlayersPredefinedLayers || !openlayersPredefinedLayers[name]) {
+        if (typeof openlayersPredefinedLayers[name] !== 'function') {
+            console.warn(name + ' layer definition is not defined');
+            return new ol.layer.Tile();
+        }
+
+        // Define the new layer with a predefined layer
+        var layer = openlayersPredefinedLayers[name]();
+
+        if (!isLayer(layer)) {
+            console.warn('Invalid layer returned by', name);
+            layer = new ol.layer.Tile();
+        }
 
         // Apply default and custom settings
         properties = $.extend(true, {}, settings.properties, properties);
         layer.setProperties(properties);
 
+        initLayer(layer, properties);
+
+        return layer;
+
+    };
+
+
+
+    /**
+    * Apply common tasks on a freshly initialized layer
+    * @param {Object} layer - OL3 layer
+    */
+    var initLayer = function (layer) {
+
+        debugLayer(layer);
+
+        /*
         // Append a link to the settings after each title
         var name = layer.get('name');
         var title = layer.get('title');
         if (name && title) {
+            //layer.set('title', title);
             layer.set('title', title
-            + ' <a href="#layer_settings_modal" data-toggle="modal" data-layer-name="' + name + '">'
+            + ' <a class="btn-link" href="#layer_settings_modal" data-toggle="modal" data-layer-name="' + name + '">'
             + '<span class="glyphicon glyphicon-cog"></span></a>');
         }
 
@@ -264,6 +334,7 @@ var openlayersLayerHelpers  = (function (mod) {
             restoreLayer(layer);
             watchLayerChanges(layer);
         }
+        */
 
         return layer;
     };
@@ -276,7 +347,10 @@ var openlayersLayerHelpers  = (function (mod) {
         findLayerBy: findLayerBy,
         settings: settings,
         treatLayers: treatLayers,
-        updateSourceUrl: updateSourceUrl
+        updateSourceUrl: updateSourceUrl,
+        isLayer: isLayer,
+        getPredefinedLayer: getPredefinedLayer,
+        getPredefinedLayers: getPredefinedLayers
     });
 
-})(openlayersHelpers || {});
+})(openlayersHelpers || {}, window.jQuery, window, document);

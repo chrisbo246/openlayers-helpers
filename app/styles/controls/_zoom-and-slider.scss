@@ -1,0 +1,25 @@
+.ol-zoomslider {
+    background-color: transparent;
+}
+
+.ol-zoomslider {
+    top: 2.3em;
+}
+.ol-touch .ol-zoomslider {
+    top: 2.75em;
+}
+.ol-zoom-in.ol-has-tooltip:hover [role=tooltip],
+.ol-zoom-in.ol-has-tooltip:focus [role=tooltip] {
+    top: 3px;
+}
+
+.ol-zoom .ol-zoom-out {
+    margin-top: 204px;
+}
+.ol-touch .ol-zoom .ol-zoom-out {
+    margin-top: 212px;
+}
+.ol-zoom-out.ol-has-tooltip:hover [role=tooltip],
+.ol-zoom-out.ol-has-tooltip:focus [role=tooltip] {
+    top: 232px;
+}

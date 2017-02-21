@@ -1,0 +1,24 @@
+
+/**
+ * Footer
+ */
+
+.map-footer {
+
+    .ol-attribution.ol-uncollapsible,
+    .ol-mouse-position,
+    .ol-scale-line {
+        background: none;
+    }
+
+    & > .ol-viewport:before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: $ol-footer-height;
+        background: rgba($ol-btn-bg, .6);
+    }
+
+}

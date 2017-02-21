@@ -1,0 +1,58 @@
+
+.ol-rotate {
+    //right: auto;
+    //left: 50%;
+    //margin: 0 auto;
+    top: $ol-btn-margin-vertical * 4 + $ol-btn-border-width * 6 + $ol-btn-size * 3;
+    right: $ol-btn-margin-horizontal;
+}
+
+.ol-scale-line {
+    //left: 170px;
+    left: $ol-btn-margin-horizontal;
+    //bottom: 0;
+    //bottom: $ol-footer-height - 24px;
+    bottom: $ol-font-size-small * 3;
+}
+
+.ol-zoomslider {
+   top: $ol-btn-margin-vertical * 2 + $ol-btn-border-width * 2 + $ol-btn-size * 2;
+   //height: 15.5em;
+}
+
+.ol-zoom-extent {
+    //top: 268px;
+    top: $ol-btn-margin-vertical * 3 + $ol-btn-border-width * 2 + $ol-btn-size * 2 + $ol-zoomslider-height;
+    //top: $ol-btn-margin-vertical * 3 + $ol-btn-border-width * 2 + $ol-btn-size * 2 + 15.5em;
+}
+
+.ol-mouse-position {
+    top: auto;
+    right: auto;
+    left: 170px;
+    //bottom: $ol-btn-margin-vertical;
+    //bottom: 0;
+    //bottom: $ol-footer-height - 24px;
+    bottom: $ol-font-size-small * 3;
+    //right: $ol-btn-margin-horizontal * 2 + $ol-btn-border-width * 2 + $ol-btn-size;
+}
+
+.ol-overviewmap {
+    bottom: $ol-footer-height + $ol-btn-margin-vertical;
+    //bottom: $ol-btn-margin-vertical * 2 + $ol-btn-border-width * 2 + $ol-btn-size;
+}
+
+/* Plugins ------------------------------------------------------------------ */
+
+.layer-switcher {
+    top: $ol-btn-margin-vertical * 2 + $ol-btn-border-width * 2 + $ol-btn-size;
+    right: $ol-btn-margin-horizontal;
+}
+
+
+/* Custom ------------------------------------------------------------------- */
+
+.ol-sidebar-toggler {
+    top: $ol-btn-margin-vertical * 3 + $ol-btn-border-width * 4 + $ol-btn-size * 2;
+    right: $ol-btn-margin-horizontal;
+}

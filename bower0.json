@@ -18,6 +18,17 @@
         "assets/fonts/bootstrap/*",
         "assets/javascripts/bootstrap.js"
       ]
+    },
+    "OpenLayers": {
+      "main": [
+        "dist/ol.css",
+        "dist/ol.js"
+      ]
+    },
+    "ol3-layerswitcher": {
+      "dependencies": {
+        "OpenLayers": "^3.16.0"
+      }
     }
   },
   "devDependencies": {

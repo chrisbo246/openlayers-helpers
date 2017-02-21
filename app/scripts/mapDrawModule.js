@@ -7,7 +7,7 @@
 * @return {Object} Public functions / variables
 */
 /*eslint-disable no-unused-vars*/
-var mapDrawModule = (function () {
+var mapDrawModule = (function (mod, $, window, document) {
     /*eslint-enable no-unused-vars*/
     'use strict';
 
@@ -111,4 +111,4 @@ var mapDrawModule = (function () {
         addDrawTypeSwitcher: addDrawTypeSwitcher
     };
 
-})();
+})(openlayersHelpers || {}, window.jQuery, window, document);

@@ -1,0 +1,12 @@
+.map {
+
+    margin: 0;
+    padding: 0;
+
+    /* Fullscreen mode */
+    &:fullscreen {
+        height: 100%;
+        height: vh100;
+    }
+
+}

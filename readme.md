@@ -1,4 +1,4 @@
-# OpenLayers helpers [![Build Status](https://secure.travis-ci.org/chrisbo246/openlayers-helpers.svg?branch=master)](http://travis-ci.org/chrisbo246/openlayers-helpers) [![Coverage Status](https://coveralls.io/repos/chrisbo246/openlayers-helpers/badge.png?branch=master)](https://coveralls.io/r/chrisbo246/openlayers-helpers?branch=master)
+# OpenLayers helpers
 
 [Demo](http://chrisbo246.github.io/openlayers-helpers/)
 
@@ -8,15 +8,16 @@ JS helpers and styles overrides for quick OL3 maps integration.
 
 ## Features
 
+* Predefined layers, controls and inputs.
+* Store / restore view and layers properties (local storage).
+* Center the view on user position.
+* Show / hide some controls according to map size.
+* Layer settings (with layer-switcher and Bootstrap modal)
+* SASS and Bootstrap 3 ready.
+* Sliding panel.
+* Default style improvement.
+* JS helpers.
 * Debug (display most Openlayers events)
-* Predefined layers, controls, etc... for a quick map definition.
-* Initially center the view on user position.
-* Show / hide some controls according to map size (add css classes).
-* Store / restore view position and visible layers (require [basil.js](https://github.com/Wisembly/basil.js) plugin).
-* Various map helpers.
-* Layer settings form (use layer-switcher and Bootstrap modal)
-* Layer-switcher button restyle.
-* File source
 
 ## Getting Started
 

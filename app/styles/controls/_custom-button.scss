@@ -1,0 +1,43 @@
+
+/**
+ * layer-switcher (plugin)
+ */
+
+.layer-switcher button,
+.layer-switcher button:hover,
+.layer-switcher button:focus {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" style="width:#{$ol-btn-font-size};height:#{$ol-btn-font-size}" viewBox="0 0 24 24"><path fill="#{$ol-btn-color}" d="M12,16L19.36,10.27L21,9L12,2L3,9L4.63,10.27M12,18.54L4.62,12.81L3,14.07L12,21.07L21,14.07L19.37,12.8L12,18.54Z" /></svg>') !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 1em;
+}
+
+
+
+/**
+ * sidebar toggler (custom control)
+ */
+
+.ol-sidebar-toggler button,
+.ol-sidebar-toggler button:hover,
+.ol-sidebar-toggler button:focus {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" style="width:#{$ol-btn-font-size};height:#{$ol-btn-font-size}" viewBox="0 0 24 24"><path fill="#{$ol-btn-color}" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg>') !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 1em;
+}
+
+
+
+/**
+ * settings toggler (custom control)
+ */
+
+.ol-settings-toggler button,
+.ol-settings-toggler button:hover,
+.ol-settings-toggler button:focus {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" style="width:#{$ol-btn-font-size};height:#{$ol-btn-font-size}" viewBox="0 0 24 24"><path fill="#{$ol-btn-color}" d="M12,16L19.36,10.27L21,9L12,2L3,9L4.63,10.27M12,18.54L4.62,12.81L3,14.07L12,21.07L21,14.07L19.37,12.8L12,18.54Z" /></svg>') !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 1em;
+}

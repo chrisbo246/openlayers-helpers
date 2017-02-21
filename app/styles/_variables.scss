@@ -1,0 +1,39 @@
+$ol-body-bg:                 #fff !default; // #fff
+
+$ol-text-color:              #333; // #333
+$ol-link-color:              #fff !default; // #337ab7
+
+//$ol-font-size-small:         12px !default; // .7em
+$ol-font-size-small:         .75em !default;
+
+$ol-btn-color:               #fff !default; // #fff
+$ol-btn-bg:                  #003c88 !default; // #003c88
+$ol-btn-font-size:           1.14em !default; // 1.14em
+$ol-btn-font-weight:         normal !default; // normal
+$ol-btn-border:              #eee !default; // #eee
+$ol-btn-border-width:        2px !default; // 2px
+$ol-btn-border-radius:                 4px !default; // 4px
+$ol-btn-border-radius-large:           6px !default; // 6px
+$ol-btn-border-radius-small:           2px !default; // 2px
+
+$ol-btn-size:                25px !default; // 1.375em
+$ol-btn-margin-vertical:     8px !default; // 8px
+$ol-btn-margin-horizontal:   8px !default; // 12px
+
+$ol-popover-bg:              $ol-body-bg !default; // #fff
+$ol-zindex-popover:          1060 !default; // 1060
+
+$ol-zoomslider-height:       200px !default;
+$ol-overviewmap-width:       150px !default; // 150px
+$ol-overviewmap-height:      150px !default; // 150px
+$ol-sidebar-width:           250px !default; // 200px
+$ol-footer-height:           55px !default; // 1.1em
+
+$ol-zindex-popover:                 1060 !default; // 1060
+$ol-popover-bg:                     $ol-body-bg !default; // #fff
+$ol-popover-max-width:              276px !default; // 276px
+$ol-popover-border-color:           $ol-btn-bg !default; // #eee
+$ol-popover-border-width:           $ol-btn-border-width !default; // 2px
+$ol-popover-fallback-border-color:  #999 !default; // #999
+
+$ol-screen-sm:               768px !default; // 768px

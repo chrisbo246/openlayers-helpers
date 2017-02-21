@@ -23,96 +23,62 @@ var map1 = (function () {
     // Map container id (without #)
     var target = 'map1';
 
-    // Define map base layers
-    var openCycleMapLayer = openlayersHelpers.getPredefinedLayer('openCycleMap');
-    var openStreetMapLayer = openlayersHelpers.getPredefinedLayer('openStreetMap');
-    var mapsForFreeReliefLayer = openlayersHelpers.getPredefinedLayer('mapsForFreeRelief');
-    var customBaseLayerLayer = openlayersHelpers.getPredefinedLayer('customBaseLayer');
-    var googleMapLayer = openlayersHelpers.getPredefinedLayer('googleMap');
-    var googleTerrainLayer = openlayersHelpers.getPredefinedLayer('googleTerrain');
-    var googleSatelliteLayer = openlayersHelpers.getPredefinedLayer('googleSatellite');
-    var mapquestOSMLayer = openlayersHelpers.getPredefinedLayer('mapquestOSM');
-    var mapquestSatLayer = openlayersHelpers.getPredefinedLayer('mapquestSat');
-
-    openlayersHelpers.initLayer(openCycleMapLayer);
-    openlayersHelpers.initLayer(openStreetMapLayer, {visible: true});
-    openlayersHelpers.initLayer(mapsForFreeReliefLayer);
-    openlayersHelpers.initLayer(customBaseLayerLayer);
-    openlayersHelpers.initLayer(googleMapLayer);
-    openlayersHelpers.initLayer(googleTerrainLayer);
-    openlayersHelpers.initLayer(googleSatelliteLayer);
-    openlayersHelpers.initLayer(mapquestOSMLayer);
-    openlayersHelpers.initLayer(mapquestSatLayer);
-
-    // Define map layers
-    var gpxFileLayer = openlayersHelpers.getPredefinedLayer('gpxFile');
-    var googleHybridLayer = openlayersHelpers.getPredefinedLayer('googleHybrid');
-    var googleBikeLayer = openlayersHelpers.getPredefinedLayer('googleBike');
-    var lonviaCyclingLayer = openlayersHelpers.getPredefinedLayer('lonviaCycling');
-    var lonviaHikingLayer = openlayersHelpers.getPredefinedLayer('lonviaHiking');
-    var mapquestHybLayer = openlayersHelpers.getPredefinedLayer('mapquestHyb');
-    var uniHeidelbergAsterhLayer = openlayersHelpers.getPredefinedLayer('uniHeidelbergAsterh');
-    var customOverlayLayer = openlayersHelpers.getPredefinedLayer('customOverlay');
-
-    openlayersHelpers.initLayer(gpxFileLayer, {zIndex: 8});
-    openlayersHelpers.initLayer(googleHybridLayer, {zIndex: 7});
-    openlayersHelpers.initLayer(googleBikeLayer, {zIndex: 6});
-    openlayersHelpers.initLayer(lonviaCyclingLayer, {zIndex: 5});
-    openlayersHelpers.initLayer(lonviaHikingLayer, {zIndex: 4});
-    openlayersHelpers.initLayer(mapquestHybLayer, {zIndex: 3});
-    openlayersHelpers.initLayer(uniHeidelbergAsterhLayer, {zIndex: 2});
-    openlayersHelpers.initLayer(customOverlayLayer, {zIndex: 1});
-
-
-    // Define map controls
-    var attributionControl = openlayersHelpers.getPredefinedControl('attribution');
-    var scaleLineControl = openlayersHelpers.getPredefinedControl('scaleLine');
-    var fullScreenControl = openlayersHelpers.getPredefinedControl('fullScreen');
-    var layerSwitcherControl = openlayersHelpers.getPredefinedControl('layerSwitcher');
-    var zoomSliderControl = openlayersHelpers.getPredefinedControl('zoomSlider');
+    // Hide logs for localhost
+    if (document.domain !== 'localhost') {
+        ['log', 'time', 'timeEnd'].forEach(function (fn) {
+            console[fn] = function () {};
+        });
+    }
 
     // Define layer groups
     var layers = [
         new ol.layer.Group({
             name: 'baseLayers',
             title: 'Base map',
-            layers: [
-                customBaseLayerLayer,
-                mapquestSatLayer,
-                openCycleMapLayer,
-                mapquestOSMLayer,
-                openStreetMapLayer
-            ]
+            layers: openlayersHelpers.getPredefinedLayers({
+                //customBaseLayer: {},
+                //mapquestSat: {},
+                //openCycleMap: {},
+                //mapquestOSM: {},
+                stamenTerrainBackground: {},
+                openStreetMap: {visible: true}
+            })
         }),
         new ol.layer.Group({
             name: 'overlays',
             title: 'Overlays',
-            layers: [
-                customOverlayLayer,
-                mapquestHybLayer,
-                lonviaHikingLayer,
-                lonviaCyclingLayer,
-                gpxFileLayer
-            ]
+            layers: openlayersHelpers.getPredefinedLayers({
+                //customOverlay: {},
+                stamenTerrainLines: {},
+                lonviaHiking: {},
+                lonviaCycling: {},
+                gpxFile: {},
+                stamenTonerLabels: {},
+                stamenTerrainLabels: {}
+            })
         })
     ];
 
     var controls = ol.control.defaults({
-        attribution: false,
+        attribution: true,
         attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
             collapsible: false
         }),
-        zoomOptions: {
-
-        }
-    }).extend([
-        attributionControl,
-        scaleLineControl,
-        fullScreenControl,
-        zoomSliderControl,
-        layerSwitcherControl
-    ]);
-
+        rotate: false,
+        rotateOptions: {},
+        zoom: true,
+        zoomOptions: {}
+    }).extend(openlayersHelpers.getPredefinedControls({
+        fullScreen: {},
+        mousePosition: {},
+        scaleLine: {},
+        zoomSlider: {},
+        zoomToExtent: {},
+        sidebarToggler: {},
+        rotate: {},
+        overviewMap: {},
+        layerSwitcher: {}
+    }));
 
     $(function () {
 
@@ -124,16 +90,16 @@ var map1 = (function () {
                 center: [0, 0],
                 zoom: 4,
                 minZoom: 2,
-                maxZoom: 19
+                maxZoom: 19,
+                rotation: -Math.PI / 8
             }),
             controls: controls,
             logo: false
         });
 
+
         // Associate helpers to the map
-        openlayersHelpers.initMap(map, {
-            debug: true
-        });
+        openlayersHelpers.initMap(map, {});
 
         /*
         // Try to restore map center and zoom from the local storage
@@ -144,45 +110,52 @@ var map1 = (function () {
         // mapHelpers.storeMapChanges();
         */
 
-        // You must call the updateSize() function
-        // when you change the map container size "manually"
-        // mapHelpers.updateSize();
-
+        openlayersLayerSettings.init(map, {
+            mapSelector: '.map',
+            formSelector: '#layer-settings-form',
+            modalSelector: '#layer-settings-modal'
+        });
+/*
+        var $map = $('.map');
+        var $form = $('#layer-settings-form');
+        var $modal = $('#layer-settings-modal');
 
         // Force the Bootstrap modal API to initialize the layerswitcher links
-        $('.layer-switcher').on('click', 'a[data-toggle="modal"]', function (e) {
+        $map.find('.layer-switcher').on('click', 'a[data-toggle="modal"]', function (e) {
             e.preventDefault();
             $(this).trigger('click.bs.modal.data-api');
         });
 
         // Populate the layer inputs when the modal show up
-        $('#layer_settings_modal').on('show.bs.modal', function (e) {
+        $modal.on('show.bs.modal', function (e) {
             var $modal = $(this);
 
             var layerVarName = $(e.relatedTarget).data('layer-name') + 'Layer';
-            if (typeof layerVarName !== 'undefined') {
+            console.log('Selected layer', layerVarName);
+            console.log('typeof', typeof layerVarName);
+            */
+            //if (typeof layerVarName !== 'undefined') {
                 /*eslint-disable no-eval*/
-                var selectedLayer = eval(layerVarName);
+            //    var selectedLayer = eval(layerVarName);
                 /*eslint-enable no-eval*/
-                if (selectedLayer) {
-                    openlayersHelpers.initLayerInputs(selectedLayer);
-                    var title = selectedLayer.get('title');
-                    $modal.find('.modal-title').html(title);
-                }
-            }
-
+            //    if (selectedLayer) {
+            //        openlayersHelpers.initLayerInputs(selectedLayer);
+            //        var title = selectedLayer.get('title');
+            //        $modal.find('.modal-title').html(title);
+            //    }
+            //}
+/*
         });
 
         // Update map overlay when user click ok
-        $('#layer_settings_form').on('submit', function (e) {
+        $form.on('submit', function (e) {
             e.preventDefault();
-            var $modal = $('#layer_settings_modal');
             $modal.modal('hide');
         });
 
+        */
+
     });
-
-
 
     return {
         map: map

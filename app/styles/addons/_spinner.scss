@@ -1,0 +1,26 @@
+
+.map {
+
+    .spinner {
+        opacity: .2;
+        z-index: 1;
+        width: 1em;
+        height: 1em;
+        margin: auto;
+        display: none;
+        position: absolute;
+        top: 5px; left: 5px; bottom: 5px; right: 5px;
+        animation: map-spinner 10s infinite linear;
+        font-size: 3em;
+    }
+
+}
+
+@keyframes map-spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(359deg);
+    }
+}
